@@ -161,6 +161,38 @@
     white-space: nowrap;
   }
 
+  /* editing mode banner */
+  .edit-banner {
+    display: none;
+    background: rgba(232,245,90,.08);
+    border: 1px solid rgba(232,245,90,.25);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .edit-banner.visible { display: flex; }
+
+  .edit-banner button {
+    background: none;
+    border: 1px solid rgba(232,245,90,.3);
+    border-radius: 6px;
+    color: var(--yellow);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 4px 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -211,13 +243,11 @@
     letter-spacing: 1px;
   }
 
-  /* total effective classes */
   .total-classes-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: transparent;
     border: 1px solid var(--border);
     border-radius: 8px;
     margin-top: 10px;
@@ -267,22 +297,15 @@
   .counter input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .counter input[type=number] { -moz-appearance: textfield; }
 
-  /* absent counter — red tint */
   .counter.absent button:hover { background: var(--red); color: #fff; border-color: var(--red); }
   .counter.absent input { color: var(--red); }
 
-  .dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    border-radius: 50%; margin-right: 5px;
-  }
-
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
   .dot-y { background: var(--yellow); }
   .dot-o { background: var(--orange); }
   .dot-b { background: var(--blue); }
   .dot-r { background: var(--red); }
 
-  /* CLINICAS */
   .clinica-item {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -373,7 +396,6 @@
 
   .add-clinica-btn:hover { border-color: var(--orange); color: var(--orange); }
 
-  /* RESULT */
   .result-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -436,7 +458,6 @@
 
   .reset-btn:hover { border-color: var(--yellow); color: var(--yellow); }
 
-  /* HISTORY */
   .summary-bar { display: flex; gap: 8px; margin-bottom: 14px; }
 
   .sum-stat {
@@ -479,15 +500,25 @@
   .h-amount.coach-paga { color: var(--green); }
   .h-amount.cero       { color: var(--yellow); }
 
-  .h-delete {
+  .h-actions {
     position: absolute; top: 12px; right: 12px;
-    background: none; border: none; color: var(--muted2);
-    font-size: 12px; cursor: pointer; opacity: 0;
-    transition: opacity 0.12s; padding: 2px 5px;
+    display: flex; gap: 4px; opacity: 0;
+    transition: opacity 0.12s;
   }
 
-  .h-item:hover .h-delete { opacity: 1; }
-  .h-delete:hover { color: var(--red); }
+  .h-item:hover .h-actions { opacity: 1; }
+
+  .h-action-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 5px; color: var(--muted2);
+    font-size: 10px; cursor: pointer;
+    padding: 3px 7px; transition: all 0.12s;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .h-action-btn.edit:hover  { color: var(--yellow); border-color: var(--yellow); }
+  .h-action-btn.del:hover   { color: var(--red);    border-color: var(--red); }
 
   .toast {
     position: fixed; bottom: 20px; left: 50%;
@@ -526,6 +557,11 @@
   <div class="sub-panel active" id="choco-calc">
     <div class="content">
 
+      <div class="edit-banner" id="choco-edit-banner">
+        <span>✏️ Editando quincena</span>
+        <button onclick="cancelEdit('choco')">Cancelar</button>
+      </div>
+
       <div class="quincena-picker">
         <div class="picker-label">Selecciona la quincena</div>
         <div class="picker-row">
@@ -556,27 +592,23 @@
           </div>
           <div class="card-icon">📅</div>
         </div>
-
         <div class="base-classes-info">
           <span>Clases base en esta quincena</span>
           <span id="choco-base-count">0</span>
         </div>
-
         <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
         <div class="counter absent">
           <button onclick="chg('choco-absent',-1,'choco')">−</button>
           <input type="number" id="choco-absent" value="0" min="0" oninput="calcChoco()">
           <button onclick="chg('choco-absent',1,'choco')">+</button>
         </div>
-
         <div class="card-sublabel"><span class="dot dot-y"></span>Clases extra</div>
         <div class="counter">
           <button onclick="chg('choco-extra',-1,'choco')">−</button>
           <input type="number" id="choco-extra" value="0" min="0" oninput="calcChoco()">
           <button onclick="chg('choco-extra',1,'choco')">+</button>
         </div>
-
-        <div class="total-classes-bar" id="choco-total-bar">
+        <div class="total-classes-bar">
           <span>Total clases a pagar</span>
           <span id="choco-total-count">0</span>
         </div>
@@ -626,18 +658,9 @@
   <div class="sub-panel" id="choco-history">
     <div class="content">
       <div class="summary-bar" id="choco-sumBar" style="display:none">
-        <div class="sum-stat">
-          <div class="sum-stat-label">Quincenas</div>
-          <div class="sum-stat-val" id="choco-sumCount">0</div>
-        </div>
-        <div class="sum-stat">
-          <div class="sum-stat-label">Clases total</div>
-          <div class="sum-stat-val" id="choco-sumClases">0</div>
-        </div>
-        <div class="sum-stat">
-          <div class="sum-stat-label">Fisios total</div>
-          <div class="sum-stat-val" id="choco-sumFisios">0</div>
-        </div>
+        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="choco-sumCount">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="choco-sumClases">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Fisios total</div><div class="sum-stat-val" id="choco-sumFisios">0</div></div>
       </div>
       <div id="choco-histList"></div>
     </div>
@@ -655,6 +678,11 @@
 
   <div class="sub-panel active" id="mario-calc">
     <div class="content">
+
+      <div class="edit-banner" id="mario-edit-banner">
+        <span>✏️ Editando quincena</span>
+        <button onclick="cancelEdit('mario')">Cancelar</button>
+      </div>
 
       <div class="quincena-picker">
         <div class="picker-label">Selecciona la quincena</div>
@@ -686,27 +714,23 @@
           </div>
           <div class="card-icon">📅</div>
         </div>
-
         <div class="base-classes-info">
           <span>Clases base en esta quincena</span>
           <span id="mario-base-count">0</span>
         </div>
-
         <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
         <div class="counter absent">
           <button onclick="chg('mario-absent',-1,'mario')">−</button>
           <input type="number" id="mario-absent" value="0" min="0" oninput="calcMario()">
           <button onclick="chg('mario-absent',1,'mario')">+</button>
         </div>
-
         <div class="card-sublabel"><span class="dot dot-y"></span>Clases extra</div>
         <div class="counter">
           <button onclick="chg('mario-extra',-1,'mario')">−</button>
           <input type="number" id="mario-extra" value="0" min="0" oninput="calcMario()">
           <button onclick="chg('mario-extra',1,'mario')">+</button>
         </div>
-
-        <div class="total-classes-bar" id="mario-total-bar">
+        <div class="total-classes-bar">
           <span>Total clases a pagar</span>
           <span id="mario-total-count">0</span>
         </div>
@@ -743,18 +767,9 @@
   <div class="sub-panel" id="mario-history">
     <div class="content">
       <div class="summary-bar" id="mario-sumBar" style="display:none">
-        <div class="sum-stat">
-          <div class="sum-stat-label">Quincenas</div>
-          <div class="sum-stat-val" id="mario-sumCount">0</div>
-        </div>
-        <div class="sum-stat">
-          <div class="sum-stat-label">Clases total</div>
-          <div class="sum-stat-val" id="mario-sumClases">0</div>
-        </div>
-        <div class="sum-stat">
-          <div class="sum-stat-label">Clínicas total</div>
-          <div class="sum-stat-val" id="mario-sumClin">0</div>
-        </div>
+        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="mario-sumCount">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="mario-sumClases">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Clínicas total</div><div class="sum-stat-val" id="mario-sumClin">0</div></div>
       </div>
       <div id="mario-histList"></div>
     </div>
@@ -772,6 +787,22 @@ const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
 
 let clinicas = [];
 let clinicaIdCounter = 1;
+
+// editing state
+let editingId = { choco: null, mario: null };
+
+// ─── STORAGE ──────────────────────────────────────────────
+function loadHistory(coach) {
+  try {
+    const data = localStorage.getItem('rakun-history-' + coach);
+    return data ? JSON.parse(data) : [];
+  } catch { return []; }
+}
+
+function saveHistoryStore(coach, data) {
+  try { localStorage.setItem('rakun-history-' + coach, JSON.stringify(data)); }
+  catch(e) { console.error(e); }
+}
 
 // ─── YEAR SELECTS ─────────────────────────────────────────
 function initYears() {
@@ -881,33 +912,35 @@ function renderVerdict(coach, neto, hasData) {
     vWho.textContent = `${name} te paga a ti`;
   }
 
-  document.getElementById(coach+'-saveBtn').disabled = !hasData;
+  const saveBtn = document.getElementById(coach+'-saveBtn');
+  saveBtn.disabled = !hasData;
+  saveBtn.textContent = editingId[coach] ? 'Guardar cambios' : 'Guardar quincena';
 }
 
 // ─── CALC CHOCO ───────────────────────────────────────────
 function calcChoco() {
-  const base    = countBaseClasses('choco');
-  const absent  = v('choco-absent');
-  const extra   = v('choco-extra');
-  const total   = Math.max(0, base - absent + extra);
-  const fisioC  = v('choco-fisioC');
-  const fisioY  = v('choco-fisioY');
+  const base   = countBaseClasses('choco');
+  const absent = v('choco-absent');
+  const extra  = v('choco-extra');
+  const total  = Math.max(0, base - absent + extra);
+  const fisioC = v('choco-fisioC');
+  const fisioY = v('choco-fisioY');
 
   document.getElementById('choco-total-count').textContent = total;
 
-  const porClases  = total * 200;
-  const porFisioY  = fisioY * 500;
-  const porFisioC  = fisioC * 250;
-  const yoDebo     = porClases + porFisioY;
-  const chocoDebe  = porFisioC;
-  const neto       = yoDebo - chocoDebe;
-  const hasData    = total > 0 || fisioC > 0 || fisioY > 0;
+  const porClases = total * 200;
+  const porFisioY = fisioY * 500;
+  const porFisioC = fisioC * 250;
+  const yoDebo    = porClases + porFisioY;
+  const chocoDebe = porFisioC;
+  const neto      = yoDebo - chocoDebe;
+  const hasData   = total > 0 || fisioC > 0 || fisioY > 0;
 
   const rows = [];
   if (total > 0) {
     let label = `${total} clases`;
     const parts = [];
-    if (base > 0) parts.push(`${base} base`);
+    if (base > 0)   parts.push(`${base} base`);
     if (absent > 0) parts.push(`−${absent} no dadas`);
     if (extra > 0)  parts.push(`+${extra} extra`);
     if (parts.length) label += ` (${parts.join(', ')})`;
@@ -1025,7 +1058,7 @@ function calcMario() {
   if (total > 0) {
     let label = `${total} clases`;
     const parts = [];
-    if (base > 0) parts.push(`${base} base`);
+    if (base > 0)   parts.push(`${base} base`);
     if (absent > 0) parts.push(`−${absent} no dadas`);
     if (extra > 0)  parts.push(`+${extra} extra`);
     if (parts.length) label += ` (${parts.join(', ')})`;
@@ -1055,35 +1088,86 @@ function calcMario() {
   return { base, absent, extra, totalClases: total, totalClinicas, clinicasData: JSON.parse(JSON.stringify(clinicas)), porClinicas, neto };
 }
 
-// ─── STORAGE ──────────────────────────────────────────────
-async function loadHistory(coach) {
-  try {
-    const res = await window.storage.get(`rakun-history-${coach}`);
-    return res ? JSON.parse(res.value) : [];
-  } catch { return []; }
-}
-
-async function saveHistoryStore(coach, data) {
-  try { await window.storage.set(`rakun-history-${coach}`, JSON.stringify(data)); }
-  catch(e) { console.error(e); }
-}
-
-async function saveQ(coach) {
-  const label   = getQuincenaLabel(coach);
+// ─── SAVE / EDIT / DELETE ─────────────────────────────────
+function saveQ(coach) {
   const savedAt = new Date().toLocaleDateString('es-MX', {day:'2-digit',month:'short',year:'numeric'});
   const d       = coach === 'choco' ? calcChoco() : calcMario();
-  const entry   = { id: Date.now(), periodo: label, savedAt, ...d };
+  const label   = getQuincenaLabel(coach);
 
-  const history = await loadHistory(coach);
-  history.unshift(entry);
-  await saveHistoryStore(coach, history);
-  showToast('Quincena guardada ✓');
+  const history = loadHistory(coach);
+
+  if (editingId[coach]) {
+    // update existing entry
+    const idx = history.findIndex(e => e.id === editingId[coach]);
+    if (idx !== -1) {
+      history[idx] = { ...history[idx], periodo: label, savedAt, ...d };
+    }
+    editingId[coach] = null;
+    document.getElementById(coach+'-edit-banner').classList.remove('visible');
+    showToast('Cambios guardados ✓');
+  } else {
+    const entry = { id: Date.now(), periodo: label, savedAt, ...d };
+    history.unshift(entry);
+    showToast('Quincena guardada ✓');
+  }
+
+  saveHistoryStore(coach, history);
   resetCoach(coach);
 }
 
-async function deleteEntry(coach, id) {
-  const history = await loadHistory(coach);
-  await saveHistoryStore(coach, history.filter(e => e.id !== id));
+function editEntry(coach, id) {
+  const history = loadHistory(coach);
+  const entry   = history.find(e => e.id === id);
+  if (!entry) return;
+
+  editingId[coach] = id;
+  document.getElementById(coach+'-edit-banner').classList.add('visible');
+
+  // switch to calc tab
+  const calcBtn = document.querySelector(`#panel-${coach} .sub-tab`);
+  setSubTab(coach, 'calc', calcBtn);
+
+  // populate quincena selector from periodo label
+  // try to parse month/year from label e.g. "1–15 Abril 2026"
+  const parts = entry.periodo.split(' ');
+  if (parts.length >= 3) {
+    const monthName = parts[1];
+    const year      = parseInt(parts[2]);
+    const monthIdx  = MONTHS.indexOf(monthName);
+    const q         = entry.periodo.startsWith('1') ? '1' : '2';
+
+    document.getElementById(coach+'-q').value = q;
+    if (monthIdx !== -1) document.getElementById(coach+'-m').value = monthIdx;
+    document.getElementById(coach+'-y').value = year;
+    onQuincenaChange(coach);
+  }
+
+  // populate fields
+  if (coach === 'choco') {
+    document.getElementById('choco-absent').value = entry.absent || 0;
+    document.getElementById('choco-extra').value  = entry.extra  || 0;
+    document.getElementById('choco-fisioC').value = entry.fisioC || 0;
+    document.getElementById('choco-fisioY').value = entry.fisioY || 0;
+    calcChoco();
+  } else {
+    document.getElementById('mario-absent').value = entry.absent || 0;
+    document.getElementById('mario-extra').value  = entry.extra  || 0;
+    clinicas = (entry.clinicasData || []).map(c => ({ ...c, id: clinicaIdCounter++ }));
+    renderClinicas();
+    calcMario();
+  }
+}
+
+function cancelEdit(coach) {
+  editingId[coach] = null;
+  document.getElementById(coach+'-edit-banner').classList.remove('visible');
+  resetCoach(coach);
+}
+
+function deleteEntry(coach, id) {
+  if (editingId[coach] === id) cancelEdit(coach);
+  const history = loadHistory(coach);
+  saveHistoryStore(coach, history.filter(e => e.id !== id));
   renderHistory(coach);
 }
 
@@ -1098,9 +1182,9 @@ function resetCoach(coach) {
   if (coach === 'choco') calcChoco(); else calcMario();
 }
 
-// ─── HISTORY ──────────────────────────────────────────────
-async function renderHistory(coach) {
-  const history = await loadHistory(coach);
+// ─── RENDER HISTORY ───────────────────────────────────────
+function renderHistory(coach) {
+  const history = loadHistory(coach);
   const list = document.getElementById(`${coach}-histList`);
   const bar  = document.getElementById(`${coach}-sumBar`);
 
@@ -1139,7 +1223,10 @@ async function renderHistory(coach) {
 
     return `
       <div class="h-item">
-        <button class="h-delete" onclick="deleteEntry('${coach}',${e.id})">✕</button>
+        <div class="h-actions">
+          <button class="h-action-btn edit" onclick="editEntry('${coach}',${e.id})">✏️ Editar</button>
+          <button class="h-action-btn del"  onclick="deleteEntry('${coach}',${e.id})">✕</button>
+        </div>
         <div class="h-top">
           <div class="h-periodo">${e.periodo}</div>
           <div class="h-date">${e.savedAt}</div>
