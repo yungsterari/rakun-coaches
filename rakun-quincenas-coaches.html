@@ -1221,9 +1221,9 @@ function renderHistory(coach) {
       if (e.totalClinicas > 0) {
         const clinData = e.clinicasData || [];
         clinData.forEach((c, i) => {
-          const pago = 250 + (c.personas >= 5 ? (c.personas - 4) * 50 : 0);
-          const extraNote = c.personas >= 5 ? ` +$${(c.personas-4)*50}` : '';
-          chips += `<span class="chip">🏋️ Clínica ${i+1}: ${c.personas} pers · $${pago.toLocaleString('es-MX')}${extraNote}</span>`;
+          const extra = c.personas >= 5 ? (c.personas - 4) * 50 : 0;
+          const extraNote = extra > 0 ? ` · +$${extra.toLocaleString('es-MX')} extra` : '';
+          chips += `<span class="chip">🏋️ Clínica ${i+1}: ${c.personas} pers · $250${extraNote}</span>`;
         });
       }
     }
