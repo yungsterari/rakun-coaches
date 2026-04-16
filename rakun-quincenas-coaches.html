@@ -1218,7 +1218,14 @@ function renderHistory(coach) {
       if (e.fisioC > 0) chips += `<span class="chip">🙌 ${e.fisioC} fisios Choco</span>`;
       if (e.fisioY > 0) chips += `<span class="chip">💳 ${e.fisioY} fisios yo</span>`;
     } else {
-      if (e.totalClinicas > 0) chips += `<span class="chip">🏋️ ${e.totalClinicas} clínica${e.totalClinicas!==1?'s':''}</span>`;
+      if (e.totalClinicas > 0) {
+        const clinData = e.clinicasData || [];
+        clinData.forEach((c, i) => {
+          const pago = 250 + (c.personas >= 5 ? (c.personas - 4) * 50 : 0);
+          const extraNote = c.personas >= 5 ? ` +$${(c.personas-4)*50}` : '';
+          chips += `<span class="chip">🏋️ Clínica ${i+1}: ${c.personas} pers · $${pago.toLocaleString('es-MX')}${extraNote}</span>`;
+        });
+      }
     }
 
     return `
