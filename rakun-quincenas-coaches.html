@@ -161,9 +161,7 @@
     white-space: nowrap;
   }
 
-  /* editing mode banner */
   .edit-banner {
-    display: none;
     background: rgba(232,245,90,.08);
     border: 1px solid rgba(232,245,90,.25);
     border-radius: 10px;
@@ -260,8 +258,6 @@
     color: var(--text);
     letter-spacing: 1px;
   }
-
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 
   .counter { display: flex; align-items: center; }
 
@@ -541,46 +537,46 @@
 </div>
 
 <div class="coach-tabs">
-  <button class="coach-tab active" onclick="setCoach('choco', this)">CHOCO</button>
+  <button class="coach-tab active" onclick="setCoach('ulises', this)">ULISES</button>
   <button class="coach-tab" onclick="setCoach('mario', this)">MARIO</button>
 </div>
 
-<!-- ═══════════ CHOCO ═══════════ -->
-<div class="coach-panel active" id="panel-choco">
+<!-- ═══════════ ULISES ═══════════ -->
+<div class="coach-panel active" id="panel-ulises">
   <div class="content">
     <div class="sub-tabs">
-      <button class="sub-tab active" onclick="setSubTab('choco','calc',this)">Calculadora</button>
-      <button class="sub-tab" onclick="setSubTab('choco','history',this)">Historial</button>
+      <button class="sub-tab active" onclick="setSubTab('ulises','calc',this)">Calculadora</button>
+      <button class="sub-tab" onclick="setSubTab('ulises','history',this)">Historial</button>
     </div>
   </div>
 
-  <div class="sub-panel active" id="choco-calc">
+  <div class="sub-panel active" id="ulises-calc">
     <div class="content">
 
-      <div class="edit-banner" id="choco-edit-banner">
+      <div class="edit-banner" id="ulises-edit-banner">
         <span>✏️ Editando quincena</span>
-        <button onclick="cancelEdit('choco')">Cancelar</button>
+        <button onclick="cancelEdit('ulises')">Cancelar</button>
       </div>
 
       <div class="quincena-picker">
         <div class="picker-label">Selecciona la quincena</div>
         <div class="picker-row">
-          <select id="choco-q" onchange="onQuincenaChange('choco')">
+          <select id="ulises-q" onchange="onQuincenaChange('ulises')">
             <option value="1">1ra quincena (1–15)</option>
             <option value="2">2da quincena (16–fin)</option>
           </select>
-          <select id="choco-m" onchange="onQuincenaChange('choco')">
+          <select id="ulises-m" onchange="onQuincenaChange('ulises')">
             <option value="0">Enero</option><option value="1">Febrero</option>
-            <option value="2">Marzo</option><option value="3" selected>Abril</option>
+            <option value="2">Marzo</option><option value="3">Abril</option>
             <option value="4">Mayo</option><option value="5">Junio</option>
-            <option value="6">Julio</option><option value="7">Agosto</option>
+            <option value="6">Julio</option><option value="7" selected>Agosto</option>
             <option value="8">Septiembre</option><option value="9">Octubre</option>
             <option value="10">Noviembre</option><option value="11">Diciembre</option>
           </select>
-          <select id="choco-y"></select>
+          <select id="ulises-y"></select>
         </div>
         <div style="margin-top:10px">
-          <span class="quincena-badge" id="choco-badge">—</span>
+          <span class="quincena-badge" id="ulises-badge">—</span>
         </div>
       </div>
 
@@ -588,81 +584,56 @@
         <div class="card-header">
           <div>
             <div class="card-title"><span class="dot dot-y"></span>Clases</div>
-            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×3 · Mi×6 · Vi×6 — calculado automático</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×3 · Mi×3 · Vi×3 — tardes únicamente</div>
           </div>
           <div class="card-icon">📅</div>
         </div>
         <div class="base-classes-info">
           <span>Clases base en esta quincena</span>
-          <span id="choco-base-count">0</span>
+          <span id="ulises-base-count">0</span>
         </div>
         <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
         <div class="counter absent">
-          <button onclick="chg('choco-absent',-1,'choco')">−</button>
-          <input type="number" id="choco-absent" value="0" min="0" oninput="calcChoco()">
-          <button onclick="chg('choco-absent',1,'choco')">+</button>
+          <button onclick="chg('ulises-absent',-1,'ulises')">−</button>
+          <input type="number" id="ulises-absent" value="0" min="0" oninput="calcUlises()">
+          <button onclick="chg('ulises-absent',1,'ulises')">+</button>
         </div>
         <div class="card-sublabel"><span class="dot dot-y"></span>Clases extra</div>
         <div class="counter">
-          <button onclick="chg('choco-extra',-1,'choco')">−</button>
-          <input type="number" id="choco-extra" value="0" min="0" oninput="calcChoco()">
-          <button onclick="chg('choco-extra',1,'choco')">+</button>
+          <button onclick="chg('ulises-extra',-1,'ulises')">−</button>
+          <input type="number" id="ulises-extra" value="0" min="0" oninput="calcUlises()">
+          <button onclick="chg('ulises-extra',1,'ulises')">+</button>
         </div>
         <div class="total-classes-bar">
           <span>Total clases a pagar</span>
-          <span id="choco-total-count">0</span>
-        </div>
-      </div>
-
-      <div class="two-col">
-        <div class="card" style="margin-bottom:0">
-          <div class="card-header" style="margin-bottom:10px">
-            <div class="card-title"><span class="dot dot-o"></span>Fisios<br>Choco cobró</div>
-            <div class="card-icon">🙌</div>
-          </div>
-          <div class="counter">
-            <button onclick="chg('choco-fisioC',-1,'choco')">−</button>
-            <input type="number" id="choco-fisioC" value="0" min="0" oninput="calcChoco()">
-            <button onclick="chg('choco-fisioC',1,'choco')">+</button>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="card-header" style="margin-bottom:10px">
-            <div class="card-title"><span class="dot dot-b"></span>Fisios<br>yo cobré</div>
-            <div class="card-icon">💳</div>
-          </div>
-          <div class="counter">
-            <button onclick="chg('choco-fisioY',-1,'choco')">−</button>
-            <input type="number" id="choco-fisioY" value="0" min="0" oninput="calcChoco()">
-            <button onclick="chg('choco-fisioY',1,'choco')">+</button>
-          </div>
+          <span id="ulises-total-count">0</span>
         </div>
       </div>
 
       <div style="margin-top:14px">
         <div class="result-card">
-          <div class="breakdown" id="choco-breakdown"></div>
-          <div class="verdict cero" id="choco-verdict">
+          <div class="breakdown" id="ulises-breakdown"></div>
+          <div class="verdict cero" id="ulises-verdict">
             <div class="verdict-label">Resultado</div>
-            <div class="verdict-amount" id="choco-vamt">$0<span class="mxn">MXN</span></div>
-            <div class="verdict-who" id="choco-vwho">Sin movimientos</div>
+            <div class="verdict-amount" id="ulises-vamt">$0<span class="mxn">MXN</span></div>
+            <div class="verdict-who" id="ulises-vwho">Sin movimientos</div>
           </div>
         </div>
-        <button class="save-btn" id="choco-saveBtn" onclick="saveQ('choco')" disabled>Guardar quincena</button>
-        <button class="reset-btn" onclick="resetCoach('choco')">↺ &nbsp; Reiniciar</button>
+        <button class="save-btn" id="ulises-saveBtn" onclick="saveQ('ulises')" disabled>Guardar quincena</button>
+        <button class="reset-btn" onclick="resetCoach('ulises')">↺ &nbsp; Reiniciar</button>
       </div>
 
     </div>
   </div>
 
-  <div class="sub-panel" id="choco-history">
+  <div class="sub-panel" id="ulises-history">
     <div class="content">
-      <div class="summary-bar" id="choco-sumBar" style="display:none">
-        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="choco-sumCount">0</div></div>
-        <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="choco-sumClases">0</div></div>
-        <div class="sum-stat"><div class="sum-stat-label">Fisios total</div><div class="sum-stat-val" id="choco-sumFisios">0</div></div>
+      <div class="summary-bar" id="ulises-sumBar" style="display:none">
+        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="ulises-sumCount">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="ulises-sumClases">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Total pagado</div><div class="sum-stat-val" id="ulises-sumPagado">$0</div></div>
       </div>
-      <div id="choco-histList"></div>
+      <div id="ulises-histList"></div>
     </div>
   </div>
 </div>
@@ -693,9 +664,9 @@
           </select>
           <select id="mario-m" onchange="onQuincenaChange('mario')">
             <option value="0">Enero</option><option value="1">Febrero</option>
-            <option value="2">Marzo</option><option value="3" selected>Abril</option>
+            <option value="2">Marzo</option><option value="3">Abril</option>
             <option value="4">Mayo</option><option value="5">Junio</option>
-            <option value="6">Julio</option><option value="7">Agosto</option>
+            <option value="6">Julio</option><option value="7" selected>Agosto</option>
             <option value="8">Septiembre</option><option value="9">Octubre</option>
             <option value="10">Noviembre</option><option value="11">Diciembre</option>
           </select>
@@ -780,16 +751,14 @@
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────
-const CHOCO_SCHEDULE = { 1:3, 3:6, 5:6 };
-const MARIO_SCHEDULE = { 1:6, 2:6, 3:3, 4:6, 5:6, 6:2 };
+const ULISES_SCHEDULE = { 1:3, 3:3, 5:3 }; // Lu×3 Mi×3 Vi×3 tardes
+const MARIO_SCHEDULE  = { 1:6, 2:6, 3:3, 4:6, 5:6, 6:2 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 let clinicas = [];
 let clinicaIdCounter = 1;
-
-// editing state
-let editingId = { choco: null, mario: null };
+let editingId = { ulises: null, mario: null };
 
 // ─── STORAGE ──────────────────────────────────────────────
 function loadHistory(coach) {
@@ -807,7 +776,7 @@ function saveHistoryStore(coach, data) {
 // ─── YEAR SELECTS ─────────────────────────────────────────
 function initYears() {
   const y = new Date().getFullYear();
-  ['choco-y','mario-y'].forEach(id => {
+  ['ulises-y','mario-y'].forEach(id => {
     const sel = document.getElementById(id);
     for (let i = y-1; i <= y+1; i++) {
       const o = document.createElement('option');
@@ -829,7 +798,7 @@ function getQuincenaRange(coach) {
 }
 
 function countBaseClasses(coach) {
-  const schedule = coach === 'choco' ? CHOCO_SCHEDULE : MARIO_SCHEDULE;
+  const schedule = coach === 'ulises' ? ULISES_SCHEDULE : MARIO_SCHEDULE;
   const { start, end, m, y } = getQuincenaRange(coach);
   let total = 0;
   for (let d = start; d <= end; d++) {
@@ -848,7 +817,7 @@ function onQuincenaChange(coach) {
   const base = countBaseClasses(coach);
   document.getElementById(coach+'-base-count').textContent = base;
   document.getElementById(coach+'-badge').textContent = getQuincenaLabel(coach);
-  if (coach === 'choco') calcChoco(); else calcMario();
+  if (coach === 'ulises') calcUlises(); else calcMario();
 }
 
 // ─── HELPERS ──────────────────────────────────────────────
@@ -857,7 +826,7 @@ function v(id) { return parseInt(document.getElementById(id).value) || 0; }
 function chg(id, delta, coach) {
   const el = document.getElementById(id);
   el.value = Math.max(0, (parseInt(el.value)||0) + delta);
-  if (coach === 'choco') calcChoco(); else calcMario();
+  if (coach === 'ulises') calcUlises(); else calcMario();
 }
 
 function setCoach(name, btn) {
@@ -890,7 +859,7 @@ function renderVerdict(coach, neto, hasData) {
   const vAmt  = document.getElementById(coach+'-vamt');
   const vWho  = document.getElementById(coach+'-vwho');
   const abs   = Math.abs(neto);
-  const name  = coach === 'choco' ? 'Choco' : 'Mario';
+  const name  = coach === 'ulises' ? 'Ulises' : 'Mario';
 
   vCard.className = 'verdict';
 
@@ -917,24 +886,18 @@ function renderVerdict(coach, neto, hasData) {
   saveBtn.textContent = editingId[coach] ? 'Guardar cambios' : 'Guardar quincena';
 }
 
-// ─── CALC CHOCO ───────────────────────────────────────────
-function calcChoco() {
-  const base   = countBaseClasses('choco');
-  const absent = v('choco-absent');
-  const extra  = v('choco-extra');
+// ─── CALC ULISES ──────────────────────────────────────────
+function calcUlises() {
+  const base   = countBaseClasses('ulises');
+  const absent = v('ulises-absent');
+  const extra  = v('ulises-extra');
   const total  = Math.max(0, base - absent + extra);
-  const fisioC = v('choco-fisioC');
-  const fisioY = v('choco-fisioY');
 
-  document.getElementById('choco-total-count').textContent = total;
+  document.getElementById('ulises-total-count').textContent = total;
 
   const porClases = total * 200;
-  const porFisioY = fisioY * 500;
-  const porFisioC = fisioC * 250;
-  const yoDebo    = porClases + porFisioY;
-  const chocoDebe = porFisioC;
-  const neto      = yoDebo - chocoDebe;
-  const hasData   = total > 0 || fisioC > 0 || fisioY > 0;
+  const neto      = porClases;
+  const hasData   = total > 0;
 
   const rows = [];
   if (total > 0) {
@@ -945,36 +908,28 @@ function calcChoco() {
     if (extra > 0)  parts.push(`+${extra} extra`);
     if (parts.length) label += ` (${parts.join(', ')})`;
     label += ' × $200';
-    rows.push({ label, val: porClases, sign: -1 });
+    rows.push({ label, val: porClases });
   }
-  if (fisioY > 0) rows.push({ label:`${fisioY} fisio${fisioY!==1?'s':''} cobré yo × $500`, val: porFisioY, sign: -1 });
-  if (fisioC > 0) rows.push({ label:`${fisioC} fisio${fisioC!==1?'s':''} cobró Choco × $250 (me debe)`, val: porFisioC, sign: +1 });
 
   let html = rows.length === 0
     ? '<div class="bd-row"><span>Ingresa los datos de la quincena</span></div>'
     : rows.map(r => `
         <div class="bd-row">
           <span>${r.label}</span>
-          <span style="color:${r.sign<0?'var(--red)':'var(--green)'}">
-            ${r.sign<0?'−':'+'}$${fmt(r.val)}
-          </span>
+          <span style="color:var(--red)">−$${fmt(r.val)}</span>
         </div>`).join('');
 
   if (rows.length > 0) {
     html += `
       <div class="bd-row bd-divider">
-        <span style="color:var(--text)">Yo le debo a Choco</span>
-        <span>$${fmt(yoDebo)}</span>
-      </div>
-      <div class="bd-row">
-        <span style="color:var(--text)">Choco me debe a mí</span>
-        <span>$${fmt(chocoDebe)}</span>
+        <span style="color:var(--text)">Total a pagarle a Ulises</span>
+        <span>$${fmt(porClases)}</span>
       </div>`;
   }
 
-  document.getElementById('choco-breakdown').innerHTML = html;
-  renderVerdict('choco', neto, hasData);
-  return { base, absent, extra, totalClases: total, fisioC, fisioY, neto };
+  document.getElementById('ulises-breakdown').innerHTML = html;
+  renderVerdict('ulises', neto, hasData);
+  return { base, absent, extra, totalClases: total, neto };
 }
 
 // ─── CLINICAS ─────────────────────────────────────────────
@@ -1091,23 +1046,18 @@ function calcMario() {
 // ─── SAVE / EDIT / DELETE ─────────────────────────────────
 function saveQ(coach) {
   const savedAt = new Date().toLocaleDateString('es-MX', {day:'2-digit',month:'short',year:'numeric'});
-  const d       = coach === 'choco' ? calcChoco() : calcMario();
+  const d       = coach === 'ulises' ? calcUlises() : calcMario();
   const label   = getQuincenaLabel(coach);
-
   const history = loadHistory(coach);
 
   if (editingId[coach]) {
-    // update existing entry
     const idx = history.findIndex(e => e.id === editingId[coach]);
-    if (idx !== -1) {
-      history[idx] = { ...history[idx], periodo: label, savedAt, ...d };
-    }
+    if (idx !== -1) history[idx] = { ...history[idx], periodo: label, savedAt, ...d };
     editingId[coach] = null;
     document.getElementById(coach+'-edit-banner').classList.remove('visible');
     showToast('Cambios guardados ✓');
   } else {
-    const entry = { id: Date.now(), periodo: label, savedAt, ...d };
-    history.unshift(entry);
+    history.unshift({ id: Date.now(), periodo: label, savedAt, ...d });
     showToast('Quincena guardada ✓');
   }
 
@@ -1123,32 +1073,24 @@ function editEntry(coach, id) {
   editingId[coach] = id;
   document.getElementById(coach+'-edit-banner').classList.add('visible');
 
-  // switch to calc tab
   const calcBtn = document.querySelector(`#panel-${coach} .sub-tab`);
   setSubTab(coach, 'calc', calcBtn);
 
-  // populate quincena selector from periodo label
-  // try to parse month/year from label e.g. "1–15 Abril 2026"
   const parts = entry.periodo.split(' ');
   if (parts.length >= 3) {
-    const monthName = parts[1];
-    const year      = parseInt(parts[2]);
-    const monthIdx  = MONTHS.indexOf(monthName);
-    const q         = entry.periodo.startsWith('1') ? '1' : '2';
-
+    const monthIdx = MONTHS.indexOf(parts[1]);
+    const year     = parseInt(parts[2]);
+    const q        = entry.periodo.startsWith('1') ? '1' : '2';
     document.getElementById(coach+'-q').value = q;
     if (monthIdx !== -1) document.getElementById(coach+'-m').value = monthIdx;
     document.getElementById(coach+'-y').value = year;
     onQuincenaChange(coach);
   }
 
-  // populate fields
-  if (coach === 'choco') {
-    document.getElementById('choco-absent').value = entry.absent || 0;
-    document.getElementById('choco-extra').value  = entry.extra  || 0;
-    document.getElementById('choco-fisioC').value = entry.fisioC || 0;
-    document.getElementById('choco-fisioY').value = entry.fisioY || 0;
-    calcChoco();
+  if (coach === 'ulises') {
+    document.getElementById('ulises-absent').value = entry.absent || 0;
+    document.getElementById('ulises-extra').value  = entry.extra  || 0;
+    calcUlises();
   } else {
     document.getElementById('mario-absent').value = entry.absent || 0;
     document.getElementById('mario-extra').value  = entry.extra  || 0;
@@ -1172,14 +1114,15 @@ function deleteEntry(coach, id) {
 }
 
 function resetCoach(coach) {
-  if (coach === 'choco') {
-    ['choco-absent','choco-extra','choco-fisioC','choco-fisioY'].forEach(id => document.getElementById(id).value = 0);
+  if (coach === 'ulises') {
+    ['ulises-absent','ulises-extra'].forEach(id => document.getElementById(id).value = 0);
+    calcUlises();
   } else {
     ['mario-absent','mario-extra'].forEach(id => document.getElementById(id).value = 0);
     clinicas = [];
     renderClinicas();
+    calcMario();
   }
-  if (coach === 'choco') calcChoco(); else calcMario();
 }
 
 // ─── RENDER HISTORY ───────────────────────────────────────
@@ -1196,10 +1139,11 @@ function renderHistory(coach) {
 
   bar.style.display = 'flex';
 
-  if (coach === 'choco') {
-    document.getElementById('choco-sumCount').textContent  = history.length;
-    document.getElementById('choco-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
-    document.getElementById('choco-sumFisios').textContent = history.reduce((a,e)=>a+(e.fisioC||0)+(e.fisioY||0),0);
+  if (coach === 'ulises') {
+    document.getElementById('ulises-sumCount').textContent  = history.length;
+    document.getElementById('ulises-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
+    const totalPagado = history.reduce((a,e)=>a+(e.neto||0),0);
+    document.getElementById('ulises-sumPagado').textContent = '$'+fmt(totalPagado);
   } else {
     document.getElementById('mario-sumCount').textContent  = history.length;
     document.getElementById('mario-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
@@ -1209,23 +1153,18 @@ function renderHistory(coach) {
   list.innerHTML = history.map(e => {
     const abs = Math.abs(e.neto);
     const cls = e.neto > 0 ? 'yo-pago' : e.neto < 0 ? 'coach-paga' : 'cero';
-    const who = e.neto > 0 ? '← Tú pagaste' : e.neto < 0 ? `← ${coach==='choco'?'Choco':'Mario'} pagó` : 'A mano';
+    const who = e.neto > 0 ? '← Tú pagaste' : e.neto < 0 ? `← ${coach==='ulises'?'Ulises':'Mario'} pagó` : 'A mano';
 
     let chips = '';
     if (e.totalClases > 0) chips += `<span class="chip">🥊 ${e.totalClases} clases</span>`;
     if (e.absent > 0)      chips += `<span class="chip">❌ ${e.absent} no dadas</span>`;
-    if (coach === 'choco') {
-      if (e.fisioC > 0) chips += `<span class="chip">🙌 ${e.fisioC} fisios Choco</span>`;
-      if (e.fisioY > 0) chips += `<span class="chip">💳 ${e.fisioY} fisios yo</span>`;
-    } else {
-      if (e.totalClinicas > 0) {
-        const clinData = e.clinicasData || [];
-        clinData.forEach((c, i) => {
-          const extra = c.personas >= 5 ? (c.personas - 4) * 50 : 0;
-          const extraNote = extra > 0 ? ` · +$${extra.toLocaleString('es-MX')} extra` : '';
-          chips += `<span class="chip">🏋️ Clínica ${i+1}: ${c.personas} pers · $250${extraNote}</span>`;
-        });
-      }
+    if (coach === 'mario' && e.totalClinicas > 0) {
+      const clinData = e.clinicasData || [];
+      clinData.forEach((c, i) => {
+        const extra = c.personas >= 5 ? (c.personas - 4) * 50 : 0;
+        const extraNote = extra > 0 ? ` · +$${extra.toLocaleString('es-MX')} extra` : '';
+        chips += `<span class="chip">🏋️ Clínica ${i+1}: ${c.personas} pers · $250${extraNote}</span>`;
+      });
     }
 
     return `
@@ -1249,7 +1188,7 @@ function renderHistory(coach) {
 
 // ─── BOOT ─────────────────────────────────────────────────
 initYears();
-onQuincenaChange('choco');
+onQuincenaChange('ulises');
 onQuincenaChange('mario');
 renderClinicas();
 </script>
