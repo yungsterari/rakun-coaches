@@ -299,7 +299,6 @@
   .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
   .dot-y { background: var(--yellow); }
   .dot-o { background: var(--orange); }
-  .dot-b { background: var(--blue); }
   .dot-r { background: var(--red); }
 
   .clinica-item {
@@ -552,12 +551,10 @@
 
   <div class="sub-panel active" id="ulises-calc">
     <div class="content">
-
       <div class="edit-banner" id="ulises-edit-banner">
         <span>✏️ Editando quincena</span>
         <button onclick="cancelEdit('ulises')">Cancelar</button>
       </div>
-
       <div class="quincena-picker">
         <div class="picker-label">Selecciona la quincena</div>
         <div class="picker-row">
@@ -569,17 +566,14 @@
             <option value="0">Enero</option><option value="1">Febrero</option>
             <option value="2">Marzo</option><option value="3">Abril</option>
             <option value="4">Mayo</option><option value="5">Junio</option>
-            <option value="6">Julio</option><option value="7" selected>Agosto</option>
-            <option value="8">Septiembre</option><option value="9">Octubre</option>
+            <option value="6">Julio</option><option value="7">Agosto</option>
+            <option value="8" selected>Septiembre</option><option value="9">Octubre</option>
             <option value="10">Noviembre</option><option value="11">Diciembre</option>
           </select>
           <select id="ulises-y"></select>
         </div>
-        <div style="margin-top:10px">
-          <span class="quincena-badge" id="ulises-badge">—</span>
-        </div>
+        <div style="margin-top:10px"><span class="quincena-badge" id="ulises-badge">—</span></div>
       </div>
-
       <div class="card">
         <div class="card-header">
           <div>
@@ -609,7 +603,6 @@
           <span id="ulises-total-count">0</span>
         </div>
       </div>
-
       <div style="margin-top:14px">
         <div class="result-card">
           <div class="breakdown" id="ulises-breakdown"></div>
@@ -622,7 +615,6 @@
         <button class="save-btn" id="ulises-saveBtn" onclick="saveQ('ulises')" disabled>Guardar quincena</button>
         <button class="reset-btn" onclick="resetCoach('ulises')">↺ &nbsp; Reiniciar</button>
       </div>
-
     </div>
   </div>
 
@@ -649,12 +641,10 @@
 
   <div class="sub-panel active" id="mario-calc">
     <div class="content">
-
       <div class="edit-banner" id="mario-edit-banner">
         <span>✏️ Editando quincena</span>
         <button onclick="cancelEdit('mario')">Cancelar</button>
       </div>
-
       <div class="quincena-picker">
         <div class="picker-label">Selecciona la quincena</div>
         <div class="picker-row">
@@ -666,17 +656,14 @@
             <option value="0">Enero</option><option value="1">Febrero</option>
             <option value="2">Marzo</option><option value="3">Abril</option>
             <option value="4">Mayo</option><option value="5">Junio</option>
-            <option value="6">Julio</option><option value="7" selected>Agosto</option>
-            <option value="8">Septiembre</option><option value="9">Octubre</option>
+            <option value="6">Julio</option><option value="7">Agosto</option>
+            <option value="8" selected>Septiembre</option><option value="9">Octubre</option>
             <option value="10">Noviembre</option><option value="11">Diciembre</option>
           </select>
           <select id="mario-y"></select>
         </div>
-        <div style="margin-top:10px">
-          <span class="quincena-badge" id="mario-badge">—</span>
-        </div>
+        <div style="margin-top:10px"><span class="quincena-badge" id="mario-badge">—</span></div>
       </div>
-
       <div class="card">
         <div class="card-header">
           <div>
@@ -706,7 +693,6 @@
           <span id="mario-total-count">0</span>
         </div>
       </div>
-
       <div class="card">
         <div class="card-header">
           <div class="card-title"><span class="dot dot-o"></span>Clínicas WL (lunes por la noche)</div>
@@ -718,7 +704,6 @@
         <div id="mario-clinicas-list"></div>
         <button class="add-clinica-btn" onclick="addClinica()">+ Agregar clínica</button>
       </div>
-
       <div style="margin-top:2px">
         <div class="result-card">
           <div class="breakdown" id="mario-breakdown"></div>
@@ -731,7 +716,6 @@
         <button class="save-btn" id="mario-saveBtn" onclick="saveQ('mario')" disabled>Guardar quincena</button>
         <button class="reset-btn" onclick="resetCoach('mario')">↺ &nbsp; Reiniciar</button>
       </div>
-
     </div>
   </div>
 
@@ -751,10 +735,12 @@
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────
-const ULISES_SCHEDULE = { 1:3, 3:3, 5:3 }; // Lu×3 Mi×3 Vi×3 tardes
+const ULISES_SCHEDULE = { 1:3, 3:3, 5:3 };
 const MARIO_SCHEDULE  = { 1:6, 2:6, 3:3, 4:6, 5:6, 6:2 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const MARIO_HISTORY_SEED = [{"id":1,"periodo":"16\u201331 Agosto 2026","savedAt":"31 ago 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":13300},{"id":2,"periodo":"1\u201315 Agosto 2026","savedAt":"17 ago 2026","base":60,"absent":0,"extra":0,"totalClases":60,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":12500},{"id":3,"periodo":"16\u201331 Julio 2026","savedAt":"29 jul 2026","base":70,"absent":0,"extra":0,"totalClases":70,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":14500},{"id":4,"periodo":"1\u201315 Julio 2026","savedAt":"14 jul 2026","base":61,"absent":0,"extra":0,"totalClases":61,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":4}],"porClinicas":500,"neto":12700},{"id":5,"periodo":"16\u201330 Junio 2026","savedAt":"29 jun 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":13300},{"id":6,"periodo":"1\u201315 Junio 2026","savedAt":"13 jun 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":3,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2},{"id":3,"personas":2}],"porClinicas":750,"neto":13550},{"id":7,"periodo":"16\u201331 Mayo 2026","savedAt":"30 may 2026","base":60,"absent":0,"extra":0,"totalClases":60,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":12500},{"id":8,"periodo":"1\u201315 Mayo 2026","savedAt":"15 may 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":4},{"id":2,"personas":3}],"porClinicas":500,"neto":13300},{"id":9,"periodo":"16\u201330 Abril 2026","savedAt":"30 abr 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":5},{"id":2,"personas":6}],"porClinicas":650,"neto":13450},{"id":10,"periodo":"1\u201315 Abril 2026","savedAt":"15 abr 2026","base":61,"absent":0,"extra":0,"totalClases":61,"totalClinicas":2,"clinicasData":[{"id":1,"personas":6},{"id":2,"personas":6}],"porClinicas":700,"neto":12900}];
 
 let clinicas = [];
 let clinicaIdCounter = 1;
@@ -764,7 +750,13 @@ let editingId = { ulises: null, mario: null };
 function loadHistory(coach) {
   try {
     const data = localStorage.getItem('rakun-history-' + coach);
-    return data ? JSON.parse(data) : [];
+    if (data) return JSON.parse(data);
+    // seed Mario history on first load
+    if (coach === 'mario') {
+      localStorage.setItem('rakun-history-mario', JSON.stringify(MARIO_HISTORY_SEED));
+      return MARIO_HISTORY_SEED;
+    }
+    return [];
   } catch { return []; }
 }
 
@@ -896,7 +888,6 @@ function calcUlises() {
   document.getElementById('ulises-total-count').textContent = total;
 
   const porClases = total * 200;
-  const neto      = porClases;
   const hasData   = total > 0;
 
   const rows = [];
@@ -913,23 +904,15 @@ function calcUlises() {
 
   let html = rows.length === 0
     ? '<div class="bd-row"><span>Ingresa los datos de la quincena</span></div>'
-    : rows.map(r => `
-        <div class="bd-row">
-          <span>${r.label}</span>
-          <span style="color:var(--red)">−$${fmt(r.val)}</span>
-        </div>`).join('');
+    : rows.map(r => `<div class="bd-row"><span>${r.label}</span><span style="color:var(--red)">−$${fmt(r.val)}</span></div>`).join('');
 
   if (rows.length > 0) {
-    html += `
-      <div class="bd-row bd-divider">
-        <span style="color:var(--text)">Total a pagarle a Ulises</span>
-        <span>$${fmt(porClases)}</span>
-      </div>`;
+    html += `<div class="bd-row bd-divider"><span style="color:var(--text)">Total a pagarle a Ulises</span><span>$${fmt(porClases)}</span></div>`;
   }
 
   document.getElementById('ulises-breakdown').innerHTML = html;
-  renderVerdict('ulises', neto, hasData);
-  return { base, absent, extra, totalClases: total, neto };
+  renderVerdict('ulises', porClases, hasData);
+  return { base, absent, extra, totalClases: total, neto: porClases };
 }
 
 // ─── CLINICAS ─────────────────────────────────────────────
@@ -964,7 +947,6 @@ function setClinicaPersonas(id, val) {
 function renderClinicas() {
   const list = document.getElementById('mario-clinicas-list');
   if (clinicas.length === 0) { list.innerHTML = ''; return; }
-
   list.innerHTML = clinicas.map((c, i) => {
     const pago = clinicaPago(c.personas);
     const extraNote = c.personas >= 5 ? `+$${(c.personas-4)*50} extra` : c.personas > 0 ? 'sin extra aún' : '';
@@ -976,9 +958,7 @@ function renderClinicas() {
             <div style="font-size:9px;color:var(--muted2);letter-spacing:1px;margin-bottom:5px;">Personas asistentes</div>
             <div class="clinica-counter">
               <button onclick="changeClinicaPersonas(${c.id},-1)">−</button>
-              <input type="number" value="${c.personas}" min="0"
-                onchange="setClinicaPersonas(${c.id}, this.value)"
-                oninput="setClinicaPersonas(${c.id}, this.value)">
+              <input type="number" value="${c.personas}" min="0" onchange="setClinicaPersonas(${c.id},this.value)" oninput="setClinicaPersonas(${c.id},this.value)">
               <button onclick="changeClinicaPersonas(${c.id},1)">+</button>
             </div>
             ${extraNote ? `<div style="font-size:9px;color:var(--orange);margin-top:4px;letter-spacing:1px;">${extraNote}</div>` : ''}
@@ -1006,7 +986,6 @@ function calcMario() {
   const totalClinicas = clinicas.length;
   const porClinicas   = clinicas.reduce((a,c) => a + clinicaPago(c.personas), 0);
   const yoDebo        = porClases + porClinicas;
-  const neto          = yoDebo;
   const hasData       = total > 0 || totalClinicas > 0;
 
   const rows = [];
@@ -1024,23 +1003,15 @@ function calcMario() {
 
   let html = rows.length === 0
     ? '<div class="bd-row"><span>Ingresa los datos de la quincena</span></div>'
-    : rows.map(r => `
-        <div class="bd-row">
-          <span>${r.label}</span>
-          <span style="color:var(--red)">−$${fmt(r.val)}</span>
-        </div>`).join('');
+    : rows.map(r => `<div class="bd-row"><span>${r.label}</span><span style="color:var(--red)">−$${fmt(r.val)}</span></div>`).join('');
 
   if (rows.length > 0) {
-    html += `
-      <div class="bd-row bd-divider">
-        <span style="color:var(--text)">Total a pagarle a Mario</span>
-        <span>$${fmt(yoDebo)}</span>
-      </div>`;
+    html += `<div class="bd-row bd-divider"><span style="color:var(--text)">Total a pagarle a Mario</span><span>$${fmt(yoDebo)}</span></div>`;
   }
 
   document.getElementById('mario-breakdown').innerHTML = html;
-  renderVerdict('mario', neto, hasData);
-  return { base, absent, extra, totalClases: total, totalClinicas, clinicasData: JSON.parse(JSON.stringify(clinicas)), porClinicas, neto };
+  renderVerdict('mario', yoDebo, hasData);
+  return { base, absent, extra, totalClases: total, totalClinicas, clinicasData: JSON.parse(JSON.stringify(clinicas)), porClinicas, neto: yoDebo };
 }
 
 // ─── SAVE / EDIT / DELETE ─────────────────────────────────
@@ -1142,8 +1113,7 @@ function renderHistory(coach) {
   if (coach === 'ulises') {
     document.getElementById('ulises-sumCount').textContent  = history.length;
     document.getElementById('ulises-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
-    const totalPagado = history.reduce((a,e)=>a+(e.neto||0),0);
-    document.getElementById('ulises-sumPagado').textContent = '$'+fmt(totalPagado);
+    document.getElementById('ulises-sumPagado').textContent = '$'+fmt(history.reduce((a,e)=>a+(e.neto||0),0));
   } else {
     document.getElementById('mario-sumCount').textContent  = history.length;
     document.getElementById('mario-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
@@ -1159,8 +1129,7 @@ function renderHistory(coach) {
     if (e.totalClases > 0) chips += `<span class="chip">🥊 ${e.totalClases} clases</span>`;
     if (e.absent > 0)      chips += `<span class="chip">❌ ${e.absent} no dadas</span>`;
     if (coach === 'mario' && e.totalClinicas > 0) {
-      const clinData = e.clinicasData || [];
-      clinData.forEach((c, i) => {
+      (e.clinicasData || []).forEach((c, i) => {
         const extra = c.personas >= 5 ? (c.personas - 4) * 50 : 0;
         const extraNote = extra > 0 ? ` · +$${extra.toLocaleString('es-MX')} extra` : '';
         chips += `<span class="chip">🏋️ Clínica ${i+1}: ${c.personas} pers · $250${extraNote}</span>`;
