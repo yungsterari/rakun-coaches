@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Corrida — Rakun</title>
+<style>
+  :root{
+    --ink:#14161a; --ink2:#1c1f25; --paper:#eeece4; --paper-dim:#dedbd0; --lane-line:#c9c5b6;
+    --red:#e14a26; --red-dim:#a83115;
+    --blue:#3f8cd1; --blue-dim:#2c66a0;
+    --amber:#e8ac3f; --amber-dim:#b9852a;
+    --teal:#2ea883; --teal-dim:#1f7a5f;
+    --violet:#b6659a; --violet-dim:#8c4877;
+    --mono:'SF Mono','Consolas','Menlo',monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--sans);min-height:100vh;padding-bottom:50px;}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px;}
+
+  .topbar{position:sticky;top:0;z-index:30;background:rgba(20,22,26,0.94);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08);padding:16px 16px 0;}
+  .topbar-inner{max-width:640px;margin:0 auto;}
+  .titlerow{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--red);margin:0 0 2px;}
+  h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.01em;color:var(--paper);}
+  .livepill{display:none;align-items:baseline;gap:6px;background:var(--red);color:#fff;border-radius:20px;padding:6px 13px 6px 12px;}
+  .livepill.show{display:flex;}
+  .livepill .t{font-family:var(--mono);font-weight:800;font-size:15px;}
+  .livepill .l{font-size:9.5px;opacity:.85;}
+
+  nav{display:flex;gap:2px;background:var(--paper-dim);border-radius:10px;padding:3px;margin:14px 0 16px;}
+  nav button{flex:1;padding:9px 6px;border:none;border-radius:7px;background:transparent;color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;opacity:.55;}
+  nav button.active{background:var(--ink);color:var(--paper);opacity:1;}
+
+  .content{padding-top:16px;}
+  .panel{display:none;} .panel.active{display:block;}
+
+  .card{background:var(--paper);color:var(--ink);border-radius:14px;padding:18px 18px 20px;margin-bottom:14px;border-top:3px solid var(--card-accent, var(--lane-line));}
+  .card h2{font-size:15px;margin:0 0 3px;font-weight:800;display:flex;align-items:center;gap:7px;}
+  .card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--card-accent,var(--lane-line));flex-shrink:0;}
+  .card .sub{font-size:12px;color:#5a5747;margin:0 0 14px;line-height:1.4;}
+
+  .field{margin-bottom:12px;} .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:11.5px;font-weight:700;margin-bottom:5px;color:#3a382e;}
+  .timeinput{display:flex;align-items:center;gap:4px;} .timeinput input{width:54px;text-align:center;}
+  .timeinput span{font-family:var(--mono);font-weight:700;color:#8a8672;}
+
+  input[type=number],input[type=text]{width:100%;padding:8px 10px;border:1.5px solid var(--lane-line);border-radius:8px;font-family:var(--mono);font-size:14.5px;background:#fbfaf6;color:var(--ink);}
+  input:focus{outline:none;border-color:var(--card-accent,#8a8672);}
+  select{width:100%;padding:8px 10px;border:1.5px solid var(--lane-line);border-radius:8px;font-family:var(--sans);font-size:13.5px;background:#fbfaf6;color:var(--ink);}
+  select:disabled{opacity:.4;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  .seg{display:flex;border:1.5px solid var(--lane-line);border-radius:8px;overflow:hidden;}
+  .seg button{flex:1;padding:8px 4px;border:none;background:#fbfaf6;color:#5a5747;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+  .seg button.active{background:var(--card-accent,var(--ink));color:#fff;}
+
+  .levelrow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:2px;}
+  .levelrow button{padding:9px 3px;border-radius:8px;border:1.5px solid var(--lane-line);background:#fbfaf6;color:var(--ink);font-size:10.5px;font-weight:800;cursor:pointer;font-family:var(--sans);}
+  .levelrow button.active{background:var(--amber);border-color:var(--amber-dim);color:#2b2005;}
+
+  .badge{display:inline-block;font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:20px;margin-top:10px;font-family:var(--sans);line-height:1.35;}
+  .badge.real{background:#dcece2;color:var(--teal-dim);} .badge.est{background:#f1e3d3;color:#8a5a1e;}
+
+  /* station lane cards */
+  .lanes{display:flex;flex-direction:column;gap:8px;}
+  .lane{display:flex;align-items:center;gap:10px;background:#fbfaf6;border:1.5px solid var(--lane-line);border-left:5px solid var(--lane-color,#999);border-radius:9px;padding:8px 10px;}
+  .lane .lanenum{width:20px;height:20px;border-radius:50%;background:var(--lane-color,#999);color:#fff;font-family:var(--mono);font-weight:800;font-size:10.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .lane .lanename{flex:1;font-size:12px;font-weight:700;color:var(--ink);line-height:1.25;min-width:0;}
+  .lane .timeinput{flex-shrink:0;}
+  .lane .timeinput input{width:46px;padding:6px 4px;font-size:13.5px;}
+
+  .result{background:var(--ink2);color:var(--paper);border-radius:14px;padding:18px 18px 20px;margin-bottom:14px;border:1px solid rgba(255,255,255,.08);}
+  .result .big{font-family:var(--mono);font-size:36px;font-weight:800;color:var(--red);line-height:1;}
+  .result .label{font-size:11.5px;opacity:.6;margin-top:3px;}
+  .breakdown{margin-top:12px;font-size:12.5px;}
+  .breakdown-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);}
+  .breakdown-row .lanedot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;}
+  .breakdown-row.total{border-bottom:none;padding-top:9px;font-weight:800;color:var(--red);font-size:14px;}
+  .breakdown-row span:first-child{opacity:.8;}
+
+  .reset{background:none;border:1px solid var(--lane-line);color:#5a5747;font-size:11.5px;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:var(--sans);margin-top:10px;}
+
+  .savebar{display:flex;gap:8px;}
+  .savebar input{flex:1;}
+  .savebtn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--sans);white-space:nowrap;}
+
+  .simcard{background:var(--paper);color:var(--ink);border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:12.5px;border-top:3px solid var(--violet);}
+  .simcard .simtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+  .simcard .simname{font-weight:800;font-size:13.5px;}
+  .simcard .simtime{font-family:var(--mono);font-weight:800;color:var(--red-dim);}
+  .simcard .simmeta{color:#5a5747;font-size:11.5px;margin-bottom:8px;}
+  .simactions{display:flex;gap:6px;}
+  .simactions button{flex:1;padding:6px;border-radius:6px;border:1px solid var(--lane-line);background:#fbfaf6;font-size:10.5px;cursor:pointer;font-family:var(--sans);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="titlerow">
+      <div><p class="kicker">RAKUN · HERRAMIENTAS DE CORRIDA</p><h1>Calculadora de ritmo</h1></div>
+      <div class="livepill" id="livepill"><span class="t" id="livepill-time">—</span><span class="l">total</span></div>
+    </div>
+    <nav>
+      <button class="tab-btn active" data-tab="general">Ritmo general</button>
+      <button class="tab-btn" data-tab="pista">Pista</button>
+      <button class="tab-btn" data-tab="hyrox">Hyrox</button>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap content">
+
+  <!-- GENERAL -->
+  <div class="panel active" id="general">
+    <div class="card" style="--card-accent:var(--blue)">
+      <h2><span class="dot"></span>Distancia · tiempo · ritmo</h2>
+      <p class="sub">Llena dos de los tres campos y calculo el que falta.</p>
+      <div class="field"><label>Distancia (metros)</label><input type="number" id="g-dist" placeholder="ej. 4400"></div>
+      <div class="field"><label>Tiempo</label><div class="timeinput"><input type="number" id="g-time-min" placeholder="min"><span>:</span><input type="text" inputmode="numeric" id="g-time-sec" placeholder="seg"></div></div>
+      <div class="field"><label>Ritmo (por km)</label><div class="timeinput"><input type="number" id="g-pace-min" placeholder="min"><span>:</span><input type="text" inputmode="numeric" id="g-pace-sec" placeholder="seg"></div></div>
+      <button class="reset" onclick="clearGroup('general')">Limpiar</button>
+    </div>
+    <div class="result" id="g-result" style="display:none">
+      <div class="big" id="g-big">—</div><div class="label" id="g-label">resultado</div>
+    </div>
+  </div>
+
+  <!-- PISTA -->
+  <div class="panel" id="pista">
+    <div class="card" style="--card-accent:var(--blue)">
+      <h2><span class="dot"></span>Vuelta a la pista</h2>
+      <p class="sub">Llena dos de los tres y calculo el que falta.</p>
+      <div class="field"><label>Longitud de la pista (metros)</label><input type="number" id="p-len" value="400"></div>
+      <div class="field"><label>Ritmo objetivo (por km)</label><div class="timeinput"><input type="number" id="p-pace-min" placeholder="min"><span>:</span><input type="text" inputmode="numeric" id="p-pace-sec" placeholder="seg"></div></div>
+      <div class="field"><label>Tiempo de la vuelta</label><div class="timeinput"><input type="number" id="p-lap-min" placeholder="min"><span>:</span><input type="text" inputmode="numeric" id="p-lap-sec" placeholder="seg"></div></div>
+      <div class="field"><label>Número de vueltas (opcional)</label><input type="number" id="p-laps" placeholder="ej. 10"></div>
+      <button class="reset" onclick="clearGroup('pista')">Limpiar</button>
+    </div>
+    <div class="result" id="p-result" style="display:none">
+      <div class="big" id="p-big">—</div><div class="label" id="p-label">resultado</div>
+    </div>
+  </div>
+
+  <!-- HYROX -->
+  <div class="panel" id="hyrox">
+
+    <div class="card" style="--card-accent:var(--blue)">
+      <h2><span class="dot"></span>Quién compite</h2>
+      <p class="sub">Formato, género, división y edad.</p>
+      <div class="field">
+        <label>Formato</label>
+        <div class="seg" id="h-format">
+          <button data-v="individual" class="active">Individual</button>
+          <button data-v="doubles">Parejas</button>
+          <button data-v="mixto">Mixto</button>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field" id="h-gender-field">
+          <label>Género</label>
+          <div class="seg" id="h-gender"><button data-v="men" class="active">Hombre</button><button data-v="women">Mujer</button></div>
+        </div>
+        <div class="field" id="h-division-field">
+          <label>División</label>
+          <div class="seg" id="h-division"><button data-v="open" class="active">Open</button><button data-v="pro">Pro</button></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Categoría de edad</label>
+        <select id="h-age">
+          <option value="16-24">16-24</option><option value="25-29" selected>25-29</option><option value="30-34">30-34</option>
+          <option value="35-39">35-39</option><option value="40-44">40-44</option><option value="45-49">45-49</option>
+          <option value="50-54">50-54</option><option value="55-59">55-59</option><option value="60+">60+</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent:var(--amber)">
+      <h2><span class="dot"></span>Nivel</h2>
+      <p class="sub">Autocompleta todo abajo — editable después.</p>
+      <div class="levelrow">
+        <button data-lvl="beginner">Principiante</button>
+        <button data-lvl="intermediate" class="active">Intermedio</button>
+        <button data-lvl="advanced">Avanzado</button>
+        <button data-lvl="podio">Podio</button>
+        <button data-lvl="elite">Elite 15</button>
+      </div>
+      <div class="field" id="h-city-field" style="display:none; margin-top:12px;">
+        <label>Ciudad</label>
+        <select id="h-city">
+          <option value="cdmx">CDMX</option><option value="acapulco">Acapulco</option><option value="cancun">Cancún</option>
+          <option value="guadalajara">Guadalajara</option><option value="monterrey">Monterrey</option><option value="puebla">Puebla</option>
+        </select>
+      </div>
+      <div id="h-source-badge"></div>
+    </div>
+
+    <div class="card" style="--card-accent:var(--red)">
+      <h2><span class="dot"></span>Meta de tiempo (opcional)</h2>
+      <p class="sub">Mete el tiempo que quieres hacer y reparto proporcionalmente el ritmo, las 8 estaciones y el RoxZone que tienes cargados ahora mismo para que sumen justo esa meta.</p>
+      <div class="field"><label>Tiempo meta (horas : minutos)</label><div class="timeinput"><input type="number" id="target-hour" placeholder="hr"><span>:</span><input type="number" id="target-min" placeholder="min"></div></div>
+      <button class="reset" onclick="applyTargetTime()" style="background:var(--red);color:#fff;border-color:var(--red-dim);">Calcular splits para esta meta</button>
+    </div>
+
+    <div class="card" style="--card-accent:var(--teal)">
+      <h2><span class="dot"></span>Ritmo de corrida</h2>
+      <p class="sub">8×1&nbsp;km de la carrera.</p>
+      <div class="field"><label>Ritmo por km</label><div class="timeinput"><input type="number" id="h-pace-min"><span>:</span><input type="text" inputmode="numeric" id="h-pace-sec"></div></div>
+    </div>
+
+    <div class="card" style="--card-accent:var(--violet)">
+      <h2><span class="dot"></span>Estaciones</h2>
+      <p class="sub">En orden de carrera — cada una con su color y su turno.</p>
+      <div class="lanes" id="h-stations"></div>
+    </div>
+
+    <div class="card" style="--card-accent:var(--lane-line)">
+      <h2><span class="dot"></span>RoxZone</h2>
+      <p class="sub">Total de las 8 transiciones.</p>
+      <div class="field"><label>RoxZone total</label><div class="timeinput"><input type="number" id="h-rox-min"><span>:</span><input type="text" inputmode="numeric" id="h-rox-sec"></div></div>
+    </div>
+
+    <div class="result" id="h-result">
+      <div class="big" id="h-big">—</div>
+      <div class="label">tiempo total estimado</div>
+      <div class="breakdown" id="h-breakdown"></div>
+    </div>
+
+    <div class="card" style="--card-accent:var(--teal)">
+      <h2><span class="dot"></span>Guardar simulación</h2>
+      <p class="sub">Nómbrala y descárgala como texto o imagen.</p>
+      <div class="savebar">
+        <input type="text" id="h-sim-name" placeholder="ej. Miriam - meta Cancún">
+        <button class="savebtn" onclick="saveSim()">Guardar</button>
+      </div>
+    </div>
+
+    <div id="h-sims"></div>
+
+  </div>
+
+</div>
+
+<canvas id="h-canvas" style="display:none" width="900" height="700"></canvas>
+
+<script>
+const LANE_COLORS=['#3f8cd1','#e8ac3f','#2ea883','#b6659a','#3f8cd1','#e8ac3f','#2ea883','#b6659a'];
+
+// ============ helpers ============
+function toSec(min,sec){ if(min===''||min===null||isNaN(min))min=0; if(sec===''||sec===null||isNaN(sec))sec=0; return parseFloat(min)*60+parseFloat(sec); }
+function fmtTime(s){ if(!isFinite(s)||s<0) return '—'; s=Math.round(s); const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return (h>0?h+':'+String(m).padStart(2,'0'):m)+':'+String(sec).padStart(2,'0'); }
+function val(id){ const v=document.getElementById(id).value; return v===''?null:parseFloat(v); }
+function toMinSec(totalSec){ totalSec=Math.max(0,Math.round(totalSec)); const m=Math.floor(totalSec/60); const s=totalSec-m*60; return [m,s]; }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function setTimeFields(minId,secId,totalSec){ const [m,s]=toMinSec(totalSec); document.getElementById(minId).value=m; document.getElementById(secId).value=pad2(s); }
+function repadSec(e){ const v=e.target.value; if(v==='') return; const n=Math.max(0,Math.min(59,parseInt(v)||0)); e.target.value=pad2(n); }
+
+// ============ tabs ============
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active');
+    const pill=document.getElementById('livepill');
+    if(btn.dataset.tab!=='hyrox') pill.classList.remove('show'); else if(document.getElementById('h-big').textContent!=='—') pill.classList.add('show');
+  });
+});
+
+// ============ GENERAL ============
+function calcGeneral(){
+  const dist=val('g-dist');
+  const tMin=document.getElementById('g-time-min').value, tSec=document.getElementById('g-time-sec').value;
+  const pMin=document.getElementById('g-pace-min').value, pSec=document.getElementById('g-pace-sec').value;
+  const timeFilled=(tMin!==''||tSec!==''), paceFilled=(pMin!==''||pSec!==''), distFilled=(dist!==null);
+  const time=timeFilled?toSec(tMin,tSec):null, pace=paceFilled?toSec(pMin,pSec):null;
+  const n=[distFilled,timeFilled,paceFilled].filter(Boolean).length;
+  const box=document.getElementById('g-result'); if(n<2){box.style.display='none';return;}
+  let distKm,timeS,paceS;
+  if(distFilled&&timeFilled){ distKm=dist/1000; timeS=time; paceS=timeS/distKm; showGeneral('Ritmo',fmtTime(paceS)+' /km'); }
+  else if(distFilled&&paceFilled){ distKm=dist/1000; paceS=pace; timeS=paceS*distKm; showGeneral('Tiempo',fmtTime(timeS)); }
+  else if(timeFilled&&paceFilled){ timeS=time; paceS=pace; distKm=timeS/paceS; showGeneral('Distancia',(distKm*1000).toFixed(0)+' m'); }
+}
+function showGeneral(label,big){ document.getElementById('g-result').style.display='block'; document.getElementById('g-label').textContent=label; document.getElementById('g-big').textContent=big; }
+['g-dist','g-time-min','g-time-sec','g-pace-min','g-pace-sec'].forEach(id=>document.getElementById(id).addEventListener('input',calcGeneral));
+function clearGroup(panelId){
+  document.querySelectorAll('#'+panelId+' input[type=number]').forEach(i=>{ if(i.id!=='p-len') i.value=''; });
+  if(panelId==='general') document.getElementById('g-result').style.display='none';
+  if(panelId==='pista') document.getElementById('p-result').style.display='none';
+}
+
+// ============ PISTA ============
+function calcPista(){
+  const len=val('p-len');
+  const pMin=document.getElementById('p-pace-min').value, pSec=document.getElementById('p-pace-sec').value;
+  const lMin=document.getElementById('p-lap-min').value, lSec=document.getElementById('p-lap-sec').value;
+  const laps=val('p-laps');
+  const paceFilled=(pMin!==''||pSec!==''), lapFilled=(lMin!==''||lSec!==''), lenFilled=(len!==null);
+  const pace=paceFilled?toSec(pMin,pSec):null, lap=lapFilled?toSec(lMin,lSec):null;
+  const n=[lenFilled,paceFilled,lapFilled].filter(Boolean).length;
+  const box=document.getElementById('p-result'); if(n<2){box.style.display='none';return;}
+  let lenM,paceS,lapS;
+  if(lenFilled&&paceFilled){ lenM=len;paceS=pace; lapS=paceS*(lenM/1000); showPista('Tiempo de vuelta',fmtTime(lapS)); }
+  else if(lenFilled&&lapFilled){ lenM=len;lapS=lap; paceS=lapS/(lenM/1000); showPista('Ritmo necesario',fmtTime(paceS)+' /km'); }
+  else if(paceFilled&&lapFilled){ paceS=pace;lapS=lap; lenM=(lapS/paceS)*1000; showPista('Longitud de pista',lenM.toFixed(0)+' m'); }
+}
+function showPista(label,big){ const box=document.getElementById('p-result'); box.style.display='block'; document.getElementById('p-label').textContent=label; document.getElementById('p-big').textContent=big; }
+['p-len','p-pace-min','p-pace-sec','p-lap-min','p-lap-sec','p-laps'].forEach(id=>document.getElementById(id).addEventListener('input',calcPista));
+
+// ============ HYROX DATA ============
+const STATION_NAMES=['SkiErg (1000m)','Sled Push (50m)','Sled Pull (50m)','Burpee Broad Jump (80m)','Row (1000m)','Farmers Carry (200m)','Sandbag Lunges (100m)','Wall Balls'];
+const BASE={
+  men:{
+    beginner:{run:390, stations:[285,223,370,401,309,156,379,523], rox:418},
+    intermediate:{run:330, stations:[269,184,303,322,289,129,313,412], rox:319},
+    advanced:{run:295, stations:[246,135,222,218,261,97,228,285], rox:273},
+    elite:{run:198, stations:[225,144,200,156,232,79,175,235], rox:270}
+  },
+  women:{
+    beginner:{run:420, stations:[331,212,416,479,348,164,372,494], rox:418},
+    intermediate:{run:330, stations:[311,175,346,384,325,137,307,390], rox:319},
+    advanced:{run:293, stations:[281,127,258,262,293,108,225,273], rox:273},
+    elite:{run:218, stations:[256,158,230,222,262,102,194,224], rox:285}
+  }
+};
+const SOURCE_LABEL={
+  beginner:'Dataset global 395k resultados HYROX (bottom 25%, Open) — HyroxDataLab',
+  intermediate:'Dataset global 395k resultados HYROX (mediana, Open) — HyroxDataLab',
+  advanced:'Dataset global 395k resultados HYROX (top 10%, Open) — HyroxDataLab',
+  elite:'Splits reales de podio Pro — Mundial de Stockholm 2026 (7,474 atletas) — HyroxDataLab'
+};
+const AGE_MULT={
+  men:{'16-24':1.02,'25-29':1.00,'30-34':1.015,'35-39':1.027,'40-44':1.046,'45-49':1.083,'50-54':1.114,'55-59':1.172,'60+':1.25},
+  women:{'16-24':0.995,'25-29':0.995,'30-34':1.00,'35-39':1.029,'40-44':1.053,'45-49':1.091,'50-54':1.139,'55-59':1.196,'60+':1.244}
+};
+const PRO_MULT=[1,1.28,1.35,1,1,1.18,1.25,1.15];
+// Doubles/Mixed team-time multipliers per station — how much faster a team's elapsed time is vs one
+// individual doing the whole station alone. Kept conservative: splitting reps/distance helps, but the
+// weight and total distance don't change, so the gain is real but modest — not the ~45% first assumed.
+const DOUBLES_MULT=[0.92,0.75,0.75,0.65,0.92,0.75,0.70,0.65];
+const DOUBLES_ROX_MULT=1.10;
+const REAL_PODIUM={
+  'cdmx|individual|open|men':3997, 'cdmx|individual|pro|men':4080, 'cdmx|individual|pro|women':4663,
+  'acapulco|individual|pro|men':3762, 'acapulco|individual|pro|women':4108, 'acapulco|mixto|open|na':3506,
+  'cancun|individual|pro|men':3983, 'cancun|individual|pro|women':4415,
+  'guadalajara|individual|pro|men':3700, 'guadalajara|individual|pro|women':4434,
+  'monterrey|individual|pro|men':3676, 'monterrey|individual|pro|women':4246,
+  'puebla|individual|pro|men':4047, 'puebla|individual|pro|women':4692
+};
+const CITY_LABEL={cdmx:'CDMX',acapulco:'Acapulco',cancun:'Cancún',guadalajara:'Guadalajara',monterrey:'Monterrey',puebla:'Puebla'};
+
+let state={format:'individual',gender:'men',division:'open',age:'25-29',city:'cdmx',level:'intermediate'};
+
+function setupToggle(containerId,stateKey){
+  document.querySelectorAll('#'+containerId+' button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('#'+containerId+' button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active'); state[stateKey]=btn.dataset.v;
+      updateVisibility(); applyLevel(state.level);
+    });
+  });
+}
+function updateVisibility(){
+  document.getElementById('h-gender-field').style.display = state.format==='mixto' ? 'none' : 'block';
+  document.getElementById('h-division-field').style.display = state.format==='mixto' ? 'none' : 'block';
+  document.getElementById('h-city-field').style.display = state.level==='podio' ? 'block' : 'none';
+}
+setupToggle('h-format','format'); setupToggle('h-gender','gender'); setupToggle('h-division','division');
+document.getElementById('h-age').addEventListener('change',e=>{ state.age=e.target.value; applyLevel(state.level); });
+document.getElementById('h-city').addEventListener('change',e=>{ state.city=e.target.value; applyLevel(state.level); });
+document.querySelectorAll('.levelrow button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.levelrow button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); state.level=btn.dataset.lvl;
+    updateVisibility(); applyLevel(state.level);
+  });
+});
+
+const stGrid=document.getElementById('h-stations');
+STATION_NAMES.forEach((name,i)=>{
+  const div=document.createElement('div'); div.className='lane'; div.style.setProperty('--lane-color',LANE_COLORS[i]);
+  div.innerHTML=`<div class="lanenum">${i+1}</div><div class="lanename">${name}</div><div class="timeinput"><input type="number" class="h-st-min" data-i="${i}"><span>:</span><input type="text" inputmode="numeric" class="h-st-sec" data-i="${i}"></div>`;
+  stGrid.appendChild(div);
+});
+
+function blend(a,b){ return {run:(a.run+b.run)/2, stations:a.stations.map((v,i)=>(v+b.stations[i])/2), rox:(a.rox+b.rox)/2}; }
+function setAgeEnabled(enabled){
+  const sel=document.getElementById('h-age'); sel.disabled=!enabled;
+  sel.title = enabled ? '' : 'No aplica: este número es el tiempo real de una persona específica a la edad que tenía ese día.';
+}
+
+function applyLevel(level){
+  const badge=document.getElementById('h-source-badge');
+  if(level==='elite'){ setAgeEnabled(false); } else if(level!=='podio'){ setAgeEnabled(true); }
+
+  if(level==='podio'){
+    const key = state.format==='mixto' ? `${state.city}|mixto|open|na` : `${state.city}|${state.format}|${state.division}|${state.gender}`;
+    const real = REAL_PODIUM[key];
+    let template = state.format==='mixto' ? blend(BASE.men.elite,BASE.women.elite) : BASE[state.gender].elite;
+    if(state.format!=='individual'){ template = { run:template.run, stations:template.stations.map((v,i)=>v*DOUBLES_MULT[i]), rox:template.rox*DOUBLES_ROX_MULT }; }
+    if(real!==undefined){
+      const templateTotal = template.run*8 + template.stations.reduce((a,b)=>a+b,0) + template.rox;
+      const scale = real/templateTotal;
+      fillHyroxFields(template.run*scale, template.stations.map(v=>v*scale), template.rox*scale);
+      setAgeEnabled(false);
+      badge.innerHTML=`<span class="badge real">✓ Real verificado — 3er lugar (bronce), podio ${CITY_LABEL[state.city]}. Desglose por estación estimado proporcionalmente.</span>`;
+      return;
+    } else {
+      setAgeEnabled(true);
+      const advBase = state.format==='mixto' ? blend(BASE.men.advanced,BASE.women.advanced) : BASE[state.gender].advanced;
+      const eliteBase = state.format==='mixto' ? blend(BASE.men.elite,BASE.women.elite) : BASE[state.gender].elite;
+      const ageM = state.format==='mixto' ? (AGE_MULT.men[state.age]+AGE_MULT.women[state.age])/2 : AGE_MULT[state.gender][state.age];
+      function shape(base,isEliteTier){
+        let run=base.run, stations=base.stations.slice(), rox=base.rox;
+        if(state.division==='pro' && state.format!=='mixto' && !isEliteTier) stations=stations.map((v,i)=>v*PRO_MULT[i]);
+        if(state.format!=='individual'){ stations=stations.map((v,i)=>v*DOUBLES_MULT[i]); rox=rox*DOUBLES_ROX_MULT; }
+        return {run,stations,rox};
+      }
+      const advShaped=shape(advBase,false), eliteShaped=shape(eliteBase,true);
+      const W=0.50; // 50% Avanzado / 50% Elite — recalibrado junto con los multiplicadores de Parejas
+      let run=advShaped.run*W+eliteShaped.run*(1-W);
+      let stations=advShaped.stations.map((v,i)=>v*W+eliteShaped.stations[i]*(1-W));
+      let rox=advShaped.rox*W+eliteShaped.rox*(1-W);
+      run*=ageM; stations=stations.map(v=>v*ageM); rox*=ageM;
+      fillHyroxFields(run,stations,rox);
+      badge.innerHTML=`<span class="badge est">Sin dato real de 3er lugar para esta combinación en ${CITY_LABEL[state.city]} — estimado "podio esperado" (mezcla Avanzado/Elite)</span>`;
+      return;
+    }
+  }
+
+  let base = state.format==='mixto' ? blend(BASE.men[level],BASE.women[level]) : BASE[state.gender][level];
+  const ageM = state.format==='mixto' ? (AGE_MULT.men[state.age]+AGE_MULT.women[state.age])/2 : AGE_MULT[state.gender][state.age];
+  let run=base.run, stations=base.stations.slice(), rox=base.rox;
+  if(state.division==='pro' && state.format!=='mixto' && level!=='elite'){ stations=stations.map((v,i)=>v*PRO_MULT[i]); }
+  if(state.format!=='individual'){ stations=stations.map((v,i)=>v*DOUBLES_MULT[i]); rox=rox*DOUBLES_ROX_MULT; }
+  if(level!=='elite'){ run*=ageM; stations=stations.map(v=>v*ageM); rox*=ageM; }
+  fillHyroxFields(run,stations,rox);
+  const div = (state.division==='pro'&&state.format!=='mixto') ? ' · Pro (peso ajustado)' : '';
+  const teamNote = state.format!=='individual' ? ' · tiempos de equipo estimados' : '';
+  badge.innerHTML=`<span class="badge est">${SOURCE_LABEL[level]}${div}${teamNote}</span>`;
+}
+
+function fillHyroxFields(run,stations,rox){
+  setTimeFields('h-pace-min','h-pace-sec',run);
+  document.querySelectorAll('.h-st-min').forEach(inp=>{ const i=inp.dataset.i; inp.value=toMinSec(stations[i])[0]; });
+  document.querySelectorAll('.h-st-sec').forEach(inp=>{ const i=inp.dataset.i; inp.value=pad2(toMinSec(stations[i])[1]); });
+  setTimeFields('h-rox-min','h-rox-sec',rox);
+  calcHyrox();
+}
+
+function calcHyrox(){
+  const pace=toSec(document.getElementById('h-pace-min').value,document.getElementById('h-pace-sec').value);
+  const runTotal=pace*8;
+  const stMins=document.querySelectorAll('.h-st-min'), stSecs=document.querySelectorAll('.h-st-sec');
+  let stationTotal=0, breakdown=[];
+  for(let i=0;i<8;i++){ const s=toSec(stMins[i].value,stSecs[i].value); stationTotal+=s; breakdown.push([STATION_NAMES[i],s,LANE_COLORS[i]]); }
+  const rox=toSec(document.getElementById('h-rox-min').value,document.getElementById('h-rox-sec').value);
+  const total=runTotal+stationTotal+rox;
+  document.getElementById('h-big').textContent=fmtTime(total);
+  const pill=document.getElementById('livepill'), pillTime=document.getElementById('livepill-time');
+  if(document.getElementById('hyrox').classList.contains('active')){ pill.classList.add('show'); pillTime.textContent=fmtTime(total); }
+  let html=`<div class="breakdown-row"><span>Corrida (8×1km @ ${fmtTime(pace)}/km)</span><span>${fmtTime(runTotal)}</span></div>`;
+  breakdown.forEach(([n,s,c])=>{ html+=`<div class="breakdown-row"><span><span class="lanedot" style="background:${c}"></span>${n}</span><span>${fmtTime(s)}</span></div>`; });
+  html+=`<div class="breakdown-row"><span>RoxZone (8 transiciones)</span><span>${fmtTime(rox)}</span></div>`;
+  html+=`<div class="breakdown-row total"><span>Total estimado</span><span>${fmtTime(total)}</span></div>`;
+  document.getElementById('h-breakdown').innerHTML=html;
+  return {pace,runTotal,breakdown,rox,total};
+}
+document.querySelectorAll('#hyrox input').forEach(i=>i.addEventListener('input',calcHyrox));
+
+function applyTargetTime(){
+  const hourVal=parseFloat(document.getElementById('target-hour').value)||0;
+  const minVal=parseFloat(document.getElementById('target-min').value)||0;
+  const targetSec=hourVal*3600 + minVal*60;
+  if(!targetSec) return;
+  const current=calcHyrox();
+  if(!current.total) return;
+  const ratio=targetSec/current.total;
+  if(ratio<0.3 || ratio>3){
+    alert(`Ese tiempo meta (${fmtTime(targetSec)}) es muy distinto a lo que tienes cargado ahora (${fmtTime(current.total)}). Revisa las horas y minutos.`);
+    return;
+  }
+  const newStations=current.breakdown.map(([n,s])=>s*ratio);
+  fillHyroxFields(current.pace*ratio, newStations, current.rox*ratio);
+  document.querySelectorAll('.levelrow button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('h-source-badge').innerHTML=`<span class="badge est">Splits recalculados proporcionalmente para una meta de ${fmtTime(targetSec)} — parte de lo que tenías cargado con el nivel/podio seleccionado</span>`;
+}
+
+let sims=[];
+function saveSim(){
+  const nameInput=document.getElementById('h-sim-name');
+  const name=nameInput.value.trim() || 'Simulación '+(sims.length+1);
+  const data=calcHyrox();
+  const meta=`${state.format==='individual'?'Individual':state.format==='doubles'?'Parejas':'Mixto'}` +
+    (state.format!=='mixto' ? ` · ${state.gender==='men'?'H':'M'} · ${state.division==='pro'?'Pro':'Open'}` : '') +
+    ` · ${state.age} · nivel ${state.level}` + (state.level==='podio' ? ` · ${CITY_LABEL[state.city]}` : '');
+  sims.unshift({name,meta,data,ts:new Date()});
+  nameInput.value=''; renderSims();
+}
+function renderSims(){
+  const box=document.getElementById('h-sims'); box.innerHTML='';
+  sims.forEach((sim,idx)=>{
+    const el=document.createElement('div'); el.className='simcard';
+    el.innerHTML=`<div class="simtop"><span class="simname">${sim.name}</span><span class="simtime">${fmtTime(sim.data.total)}</span></div>
+      <div class="simmeta">${sim.meta}</div>
+      <div class="simactions">
+        <button onclick="downloadSimText(${idx})">.txt</button>
+        <button onclick="downloadSimImage(${idx})">Imagen</button>
+        <button onclick="deleteSim(${idx})">Eliminar</button>
+      </div>`;
+    box.appendChild(el);
+  });
+}
+function deleteSim(idx){ sims.splice(idx,1); renderSims(); }
+function downloadSimText(idx){
+  const sim=sims[idx];
+  let txt=`${sim.name}\n${sim.meta}\n\nTiempo total: ${fmtTime(sim.data.total)}\n\n`;
+  txt+=`Corrida (8x1km @ ${fmtTime(sim.data.pace)}/km): ${fmtTime(sim.data.runTotal)}\n`;
+  sim.data.breakdown.forEach(([n,s])=>{ txt+=`${n}: ${fmtTime(s)}\n`; });
+  txt+=`RoxZone: ${fmtTime(sim.data.rox)}\n`;
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=sim.name.replace(/[^a-z0-9]/gi,'_')+'.txt'; a.click();
+}
+function downloadSimImage(idx){
+  const sim=sims[idx];
+  const cv=document.getElementById('h-canvas'); const ctx=cv.getContext('2d');
+  ctx.fillStyle='#14161a'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#e14a26'; ctx.font='bold 14px monospace'; ctx.fillText('RAKUN · SIMULACIÓN HYROX',40,50);
+  ctx.fillStyle='#eeece4'; ctx.font='bold 28px sans-serif'; ctx.fillText(sim.name,40,90);
+  ctx.font='13px sans-serif'; ctx.fillStyle='#a8a496'; ctx.fillText(sim.meta,40,115);
+  ctx.font='bold 64px monospace'; ctx.fillStyle='#e14a26'; ctx.fillText(fmtTime(sim.data.total),40,190);
+  ctx.font='12px sans-serif'; ctx.fillStyle='#a8a496'; ctx.fillText('tiempo total estimado',40,212);
+  let y=260; ctx.font='14px monospace';
+  const rows=[['Corrida (8x1km @ '+fmtTime(sim.data.pace)+'/km)',fmtTime(sim.data.runTotal),'#8a8672']]
+    .concat(sim.data.breakdown.map(([n,s,c])=>[n,fmtTime(s),c]))
+    .concat([['RoxZone',fmtTime(sim.data.rox),'#8a8672']]);
+  rows.forEach(([n,t,c])=>{
+    ctx.fillStyle=c; ctx.beginPath(); ctx.arc(40,y-5,5,0,7); ctx.fill();
+    ctx.fillStyle='#c9c5b6'; ctx.fillText(n,56,y);
+    ctx.fillStyle='#eeece4'; ctx.textAlign='right'; ctx.fillText(t,860,y); ctx.textAlign='left';
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.moveTo(40,y+12); ctx.lineTo(860,y+12); ctx.stroke();
+    y+=34;
+  });
+  ctx.font='bold 16px monospace'; ctx.fillStyle='#e14a26';
+  ctx.fillText('TOTAL',40,y+10); ctx.textAlign='right'; ctx.fillText(fmtTime(sim.data.total),860,y+10); ctx.textAlign='left';
+  cv.toBlob(blob=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=sim.name.replace(/[^a-z0-9]/gi,'_')+'.png'; a.click(); });
+}
+
+updateVisibility();
+applyLevel('intermediate');
+
+// auto-pad seconds fields to 2 digits when the user finishes typing
+document.querySelectorAll('input[id$="-sec"], input.h-st-sec').forEach(inp=>inp.addEventListener('blur',repadSec));
+
+</script>
+</body>
+</html>
