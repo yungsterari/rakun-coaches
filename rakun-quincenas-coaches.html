@@ -19,6 +19,7 @@
     --yellow: #e8f55a;
     --orange: #ff6b35;
     --blue: #60a5fa;
+    --purple: #c084fc;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,7 +40,7 @@
 
   .app-header h1 {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(36px, 10vw, 60px);
+    font-size: clamp(32px, 9vw, 56px);
     letter-spacing: 6px;
     color: var(--text);
   }
@@ -63,13 +64,13 @@
 
   .coach-tab {
     flex: 1;
-    padding: 14px 8px;
+    padding: 12px 4px;
     border: none;
     background: transparent;
     color: var(--muted2);
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
+    font-size: 18px;
+    letter-spacing: 2px;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all 0.15s;
@@ -137,7 +138,7 @@
 
   .picker-row select {
     flex: 1;
-    min-width: 100px;
+    min-width: 90px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -300,6 +301,7 @@
   .dot-y { background: var(--yellow); }
   .dot-o { background: var(--orange); }
   .dot-r { background: var(--red); }
+  .dot-p { background: var(--purple); }
 
   .clinica-item {
     background: var(--surface2);
@@ -465,7 +467,7 @@
   }
 
   .sum-stat-label { font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2); margin-bottom: 4px; }
-  .sum-stat-val   { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; }
+  .sum-stat-val   { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; }
 
   .history-empty { text-align: center; color: var(--muted2); font-size: 11px; padding: 48px 0; letter-spacing: 1px; }
 
@@ -512,8 +514,8 @@
     letter-spacing: 1px;
   }
 
-  .h-action-btn.edit:hover  { color: var(--yellow); border-color: var(--yellow); }
-  .h-action-btn.del:hover   { color: var(--red);    border-color: var(--red); }
+  .h-action-btn.edit:hover { color: var(--yellow); border-color: var(--yellow); }
+  .h-action-btn.del:hover  { color: var(--red);    border-color: var(--red); }
 
   .toast {
     position: fixed; bottom: 20px; left: 50%;
@@ -532,12 +534,13 @@
 
 <div class="app-header">
   <h1>RAKUN <span>COACHES</span></h1>
-  <p>Calculadora de quincena</p>
+  <p>Calculadora de pagos</p>
 </div>
 
 <div class="coach-tabs">
-  <button class="coach-tab active" onclick="setCoach('ulises', this)">ULISES</button>
-  <button class="coach-tab" onclick="setCoach('mario', this)">MARIO</button>
+  <button class="coach-tab active" onclick="setCoach('ulises',this)">ULISES</button>
+  <button class="coach-tab" onclick="setCoach('mitzi',this)">MITZI</button>
+  <button class="coach-tab" onclick="setCoach('mario',this)">MARIO</button>
 </div>
 
 <!-- ═══════════ ULISES ═══════════ -->
@@ -548,29 +551,24 @@
       <button class="sub-tab" onclick="setSubTab('ulises','history',this)">Historial</button>
     </div>
   </div>
-
   <div class="sub-panel active" id="ulises-calc">
     <div class="content">
       <div class="edit-banner" id="ulises-edit-banner">
-        <span>✏️ Editando quincena</span>
+        <span>✏️ Editando período</span>
         <button onclick="cancelEdit('ulises')">Cancelar</button>
       </div>
       <div class="quincena-picker">
-        <div class="picker-label">Selecciona la quincena</div>
+        <div class="picker-label">Período mensual (16 al 15)</div>
         <div class="picker-row">
-          <select id="ulises-q" onchange="onQuincenaChange('ulises')">
-            <option value="1">1ra quincena (1–15)</option>
-            <option value="2">2da quincena (16–fin)</option>
+          <select id="ulises-m" onchange="onPeriodChange('ulises')">
+            <option value="0">Ene→Feb</option><option value="1">Feb→Mar</option>
+            <option value="2">Mar→Abr</option><option value="3">Abr→May</option>
+            <option value="4">May→Jun</option><option value="5">Jun→Jul</option>
+            <option value="6">Jul→Ago</option><option value="7">Ago→Sep</option>
+            <option value="8" selected>Sep→Oct</option><option value="9">Oct→Nov</option>
+            <option value="10">Nov→Dic</option><option value="11">Dic→Ene</option>
           </select>
-          <select id="ulises-m" onchange="onQuincenaChange('ulises')">
-            <option value="0">Enero</option><option value="1">Febrero</option>
-            <option value="2">Marzo</option><option value="3">Abril</option>
-            <option value="4">Mayo</option><option value="5">Junio</option>
-            <option value="6">Julio</option><option value="7">Agosto</option>
-            <option value="8" selected>Septiembre</option><option value="9">Octubre</option>
-            <option value="10">Noviembre</option><option value="11">Diciembre</option>
-          </select>
-          <select id="ulises-y"></select>
+          <select id="ulises-y" onchange="onPeriodChange('ulises')"></select>
         </div>
         <div style="margin-top:10px"><span class="quincena-badge" id="ulises-badge">—</span></div>
       </div>
@@ -578,24 +576,24 @@
         <div class="card-header">
           <div>
             <div class="card-title"><span class="dot dot-y"></span>Clases</div>
-            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×3 · Mi×3 · Vi×3 — tardes únicamente</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×3 · Mi×3 · Vi×3 — tardes · $200/clase</div>
           </div>
           <div class="card-icon">📅</div>
         </div>
         <div class="base-classes-info">
-          <span>Clases base en esta quincena</span>
+          <span>Clases base en este período</span>
           <span id="ulises-base-count">0</span>
         </div>
         <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
         <div class="counter absent">
           <button onclick="chg('ulises-absent',-1,'ulises')">−</button>
-          <input type="number" id="ulises-absent" value="0" min="0" oninput="calcUlises()">
+          <input type="number" id="ulises-absent" value="0" min="0" oninput="calcCoach('ulises')">
           <button onclick="chg('ulises-absent',1,'ulises')">+</button>
         </div>
         <div class="card-sublabel"><span class="dot dot-y"></span>Clases extra</div>
         <div class="counter">
           <button onclick="chg('ulises-extra',-1,'ulises')">−</button>
-          <input type="number" id="ulises-extra" value="0" min="0" oninput="calcUlises()">
+          <input type="number" id="ulises-extra" value="0" min="0" oninput="calcCoach('ulises')">
           <button onclick="chg('ulises-extra',1,'ulises')">+</button>
         </div>
         <div class="total-classes-bar">
@@ -612,20 +610,107 @@
             <div class="verdict-who" id="ulises-vwho">Sin movimientos</div>
           </div>
         </div>
-        <button class="save-btn" id="ulises-saveBtn" onclick="saveQ('ulises')" disabled>Guardar quincena</button>
+        <button class="save-btn" id="ulises-saveBtn" onclick="saveQ('ulises')" disabled>Guardar período</button>
         <button class="reset-btn" onclick="resetCoach('ulises')">↺ &nbsp; Reiniciar</button>
       </div>
     </div>
   </div>
-
   <div class="sub-panel" id="ulises-history">
     <div class="content">
       <div class="summary-bar" id="ulises-sumBar" style="display:none">
-        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="ulises-sumCount">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Períodos</div><div class="sum-stat-val" id="ulises-sumCount">0</div></div>
         <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="ulises-sumClases">0</div></div>
         <div class="sum-stat"><div class="sum-stat-label">Total pagado</div><div class="sum-stat-val" id="ulises-sumPagado">$0</div></div>
       </div>
       <div id="ulises-histList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MITZI ═══════════ -->
+<div class="coach-panel" id="panel-mitzi">
+  <div class="content">
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="setSubTab('mitzi','calc',this)">Calculadora</button>
+      <button class="sub-tab" onclick="setSubTab('mitzi','history',this)">Historial</button>
+    </div>
+  </div>
+  <div class="sub-panel active" id="mitzi-calc">
+    <div class="content">
+      <div class="edit-banner" id="mitzi-edit-banner">
+        <span>✏️ Editando quincena</span>
+        <button onclick="cancelEdit('mitzi')">Cancelar</button>
+      </div>
+      <div class="quincena-picker">
+        <div class="picker-label">Selecciona la quincena</div>
+        <div class="picker-row">
+          <select id="mitzi-q" onchange="onQuincenaChange('mitzi')">
+            <option value="1">1ra quincena (1–15)</option>
+            <option value="2">2da quincena (16–fin)</option>
+          </select>
+          <select id="mitzi-m" onchange="onQuincenaChange('mitzi')">
+            <option value="0">Enero</option><option value="1">Febrero</option>
+            <option value="2">Marzo</option><option value="3">Abril</option>
+            <option value="4">Mayo</option><option value="5">Junio</option>
+            <option value="6">Julio</option><option value="7">Agosto</option>
+            <option value="8" selected>Septiembre</option><option value="9">Octubre</option>
+            <option value="10">Noviembre</option><option value="11">Diciembre</option>
+          </select>
+          <select id="mitzi-y" onchange="onQuincenaChange('mitzi')"></select>
+        </div>
+        <div style="margin-top:10px"><span class="quincena-badge" id="mitzi-badge">—</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><span class="dot dot-p"></span>Clases</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×3 · Mi×3 · Vi×3 — mañanas · $300/clase</div>
+          </div>
+          <div class="card-icon">📅</div>
+        </div>
+        <div class="base-classes-info">
+          <span>Clases base en esta quincena</span>
+          <span id="mitzi-base-count">0</span>
+        </div>
+        <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
+        <div class="counter absent">
+          <button onclick="chg('mitzi-absent',-1,'mitzi')">−</button>
+          <input type="number" id="mitzi-absent" value="0" min="0" oninput="calcCoach('mitzi')">
+          <button onclick="chg('mitzi-absent',1,'mitzi')">+</button>
+        </div>
+        <div class="card-sublabel"><span class="dot dot-p"></span>Clases extra</div>
+        <div class="counter">
+          <button onclick="chg('mitzi-extra',-1,'mitzi')">−</button>
+          <input type="number" id="mitzi-extra" value="0" min="0" oninput="calcCoach('mitzi')">
+          <button onclick="chg('mitzi-extra',1,'mitzi')">+</button>
+        </div>
+        <div class="total-classes-bar">
+          <span>Total clases a pagar</span>
+          <span id="mitzi-total-count">0</span>
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="result-card">
+          <div class="breakdown" id="mitzi-breakdown"></div>
+          <div class="verdict cero" id="mitzi-verdict">
+            <div class="verdict-label">Resultado</div>
+            <div class="verdict-amount" id="mitzi-vamt">$0<span class="mxn">MXN</span></div>
+            <div class="verdict-who" id="mitzi-vwho">Sin movimientos</div>
+          </div>
+        </div>
+        <button class="save-btn" id="mitzi-saveBtn" onclick="saveQ('mitzi')" disabled>Guardar quincena</button>
+        <button class="reset-btn" onclick="resetCoach('mitzi')">↺ &nbsp; Reiniciar</button>
+      </div>
+    </div>
+  </div>
+  <div class="sub-panel" id="mitzi-history">
+    <div class="content">
+      <div class="summary-bar" id="mitzi-sumBar" style="display:none">
+        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="mitzi-sumCount">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="mitzi-sumClases">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Total pagado</div><div class="sum-stat-val" id="mitzi-sumPagado">$0</div></div>
+      </div>
+      <div id="mitzi-histList"></div>
     </div>
   </div>
 </div>
@@ -638,7 +723,6 @@
       <button class="sub-tab" onclick="setSubTab('mario','history',this)">Historial</button>
     </div>
   </div>
-
   <div class="sub-panel active" id="mario-calc">
     <div class="content">
       <div class="edit-banner" id="mario-edit-banner">
@@ -660,7 +744,7 @@
             <option value="8" selected>Septiembre</option><option value="9">Octubre</option>
             <option value="10">Noviembre</option><option value="11">Diciembre</option>
           </select>
-          <select id="mario-y"></select>
+          <select id="mario-y" onchange="onQuincenaChange('mario')"></select>
         </div>
         <div style="margin-top:10px"><span class="quincena-badge" id="mario-badge">—</span></div>
       </div>
@@ -668,7 +752,7 @@
         <div class="card-header">
           <div>
             <div class="card-title"><span class="dot dot-y"></span>Clases</div>
-            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×6 · Ma×6 · Mi×3 · Ju×6 · Vi×6 · Sa×2</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px;">Lu×6 · Ma×6 · Mi×3 · Ju×6 · Vi×6 · Sa×2 · $200/clase</div>
           </div>
           <div class="card-icon">📅</div>
         </div>
@@ -679,13 +763,13 @@
         <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
         <div class="counter absent">
           <button onclick="chg('mario-absent',-1,'mario')">−</button>
-          <input type="number" id="mario-absent" value="0" min="0" oninput="calcMario()">
+          <input type="number" id="mario-absent" value="0" min="0" oninput="calcCoach('mario')">
           <button onclick="chg('mario-absent',1,'mario')">+</button>
         </div>
         <div class="card-sublabel"><span class="dot dot-y"></span>Clases extra</div>
         <div class="counter">
           <button onclick="chg('mario-extra',-1,'mario')">−</button>
-          <input type="number" id="mario-extra" value="0" min="0" oninput="calcMario()">
+          <input type="number" id="mario-extra" value="0" min="0" oninput="calcCoach('mario')">
           <button onclick="chg('mario-extra',1,'mario')">+</button>
         </div>
         <div class="total-classes-bar">
@@ -718,7 +802,6 @@
       </div>
     </div>
   </div>
-
   <div class="sub-panel" id="mario-history">
     <div class="content">
       <div class="summary-bar" id="mario-sumBar" style="display:none">
@@ -735,23 +818,27 @@
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────
-const ULISES_SCHEDULE = { 1:3, 3:3, 5:3 };
-const MARIO_SCHEDULE  = { 1:6, 2:6, 3:3, 4:6, 5:6, 6:2 };
+const SCHEDULES = {
+  ulises: { 1:3, 3:3, 5:3 },
+  mitzi:  { 1:3, 3:3, 5:3 },
+  mario:  { 1:6, 2:6, 3:3, 4:6, 5:6, 6:2 }
+};
+const RATES = { ulises: 200, mitzi: 300, mario: 200 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MONTHS_SHORT = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
 const MARIO_HISTORY_SEED = [{"id":1,"periodo":"16\u201331 Agosto 2026","savedAt":"31 ago 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":13300},{"id":2,"periodo":"1\u201315 Agosto 2026","savedAt":"17 ago 2026","base":60,"absent":0,"extra":0,"totalClases":60,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":12500},{"id":3,"periodo":"16\u201331 Julio 2026","savedAt":"29 jul 2026","base":70,"absent":0,"extra":0,"totalClases":70,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":14500},{"id":4,"periodo":"1\u201315 Julio 2026","savedAt":"14 jul 2026","base":61,"absent":0,"extra":0,"totalClases":61,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":4}],"porClinicas":500,"neto":12700},{"id":5,"periodo":"16\u201330 Junio 2026","savedAt":"29 jun 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":13300},{"id":6,"periodo":"1\u201315 Junio 2026","savedAt":"13 jun 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":3,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2},{"id":3,"personas":2}],"porClinicas":750,"neto":13550},{"id":7,"periodo":"16\u201331 Mayo 2026","savedAt":"30 may 2026","base":60,"absent":0,"extra":0,"totalClases":60,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":12500},{"id":8,"periodo":"1\u201315 Mayo 2026","savedAt":"15 may 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":4},{"id":2,"personas":3}],"porClinicas":500,"neto":13300},{"id":9,"periodo":"16\u201330 Abril 2026","savedAt":"30 abr 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":5},{"id":2,"personas":6}],"porClinicas":650,"neto":13450},{"id":10,"periodo":"1\u201315 Abril 2026","savedAt":"15 abr 2026","base":61,"absent":0,"extra":0,"totalClases":61,"totalClinicas":2,"clinicasData":[{"id":1,"personas":6},{"id":2,"personas":6}],"porClinicas":700,"neto":12900}];
 
 let clinicas = [];
 let clinicaIdCounter = 1;
-let editingId = { ulises: null, mario: null };
+let editingId = { ulises: null, mitzi: null, mario: null };
 
 // ─── STORAGE ──────────────────────────────────────────────
 function loadHistory(coach) {
   try {
     const data = localStorage.getItem('rakun-history-' + coach);
     if (data) return JSON.parse(data);
-    // seed Mario history on first load
     if (coach === 'mario') {
       localStorage.setItem('rakun-history-mario', JSON.stringify(MARIO_HISTORY_SEED));
       return MARIO_HISTORY_SEED;
@@ -768,7 +855,7 @@ function saveHistoryStore(coach, data) {
 // ─── YEAR SELECTS ─────────────────────────────────────────
 function initYears() {
   const y = new Date().getFullYear();
-  ['ulises-y','mario-y'].forEach(id => {
+  ['ulises-y','mitzi-y','mario-y'].forEach(id => {
     const sel = document.getElementById(id);
     for (let i = y-1; i <= y+1; i++) {
       const o = document.createElement('option');
@@ -779,7 +866,48 @@ function initYears() {
   });
 }
 
-// ─── QUINCENA ─────────────────────────────────────────────
+// ─── ULISES MONTHLY PERIOD (16 → 15) ──────────────────────
+function getUlisesPeriod() {
+  const m = parseInt(document.getElementById('ulises-m').value); // start month index
+  const y = parseInt(document.getElementById('ulises-y').value);
+  // period: 16/m/y → 15/(m+1)/y (or Jan of y+1 if m=11)
+  const startM = m, startY = y;
+  const endM = (m + 1) % 12, endY = m === 11 ? y + 1 : y;
+  return { startM, startY, endM, endY };
+}
+
+function countUlisesClasses() {
+  const { startM, startY, endM, endY } = getUlisesPeriod();
+  const schedule = SCHEDULES.ulises;
+  let total = 0;
+  // from day 16 of startM to day 15 of endM
+  const lastDayStart = new Date(startY, startM + 1, 0).getDate();
+  for (let d = 16; d <= lastDayStart; d++) {
+    const dow = new Date(startY, startM, d).getDay();
+    if (schedule[dow]) total += schedule[dow];
+  }
+  for (let d = 1; d <= 15; d++) {
+    const dow = new Date(endY, endM, d).getDay();
+    if (schedule[dow]) total += schedule[dow];
+  }
+  return total;
+}
+
+function getUlisesLabel() {
+  const { startM, startY, endM, endY } = getUlisesPeriod();
+  return `16 ${MONTHS[startM]}–15 ${MONTHS[endM]} ${endY}`;
+}
+
+function onPeriodChange(coach) {
+  if (coach === 'ulises') {
+    const base = countUlisesClasses();
+    document.getElementById('ulises-base-count').textContent = base;
+    document.getElementById('ulises-badge').textContent = getUlisesLabel();
+    calcCoach('ulises');
+  }
+}
+
+// ─── QUINCENA (Mitzi & Mario) ──────────────────────────────
 function getQuincenaRange(coach) {
   const q = parseInt(document.getElementById(coach+'-q').value);
   const m = parseInt(document.getElementById(coach+'-m').value);
@@ -790,7 +918,8 @@ function getQuincenaRange(coach) {
 }
 
 function countBaseClasses(coach) {
-  const schedule = coach === 'ulises' ? ULISES_SCHEDULE : MARIO_SCHEDULE;
+  if (coach === 'ulises') return countUlisesClasses();
+  const schedule = SCHEDULES[coach];
   const { start, end, m, y } = getQuincenaRange(coach);
   let total = 0;
   for (let d = start; d <= end; d++) {
@@ -801,6 +930,7 @@ function countBaseClasses(coach) {
 }
 
 function getQuincenaLabel(coach) {
+  if (coach === 'ulises') return getUlisesLabel();
   const { start, end, m, y } = getQuincenaRange(coach);
   return `${start}–${end} ${MONTHS[m]} ${y}`;
 }
@@ -809,7 +939,7 @@ function onQuincenaChange(coach) {
   const base = countBaseClasses(coach);
   document.getElementById(coach+'-base-count').textContent = base;
   document.getElementById(coach+'-badge').textContent = getQuincenaLabel(coach);
-  if (coach === 'ulises') calcUlises(); else calcMario();
+  calcCoach(coach);
 }
 
 // ─── HELPERS ──────────────────────────────────────────────
@@ -818,7 +948,7 @@ function v(id) { return parseInt(document.getElementById(id).value) || 0; }
 function chg(id, delta, coach) {
   const el = document.getElementById(id);
   el.value = Math.max(0, (parseInt(el.value)||0) + delta);
-  if (coach === 'ulises') calcUlises(); else calcMario();
+  calcCoach(coach);
 }
 
 function setCoach(name, btn) {
@@ -851,10 +981,9 @@ function renderVerdict(coach, neto, hasData) {
   const vAmt  = document.getElementById(coach+'-vamt');
   const vWho  = document.getElementById(coach+'-vwho');
   const abs   = Math.abs(neto);
-  const name  = coach === 'ulises' ? 'Ulises' : 'Mario';
+  const names = { ulises:'Ulises', mitzi:'Mitzi', mario:'Mario' };
 
   vCard.className = 'verdict';
-
   if (!hasData) {
     vCard.classList.add('cero');
     vAmt.innerHTML = `$0<span class="mxn">MXN</span>`;
@@ -866,28 +995,32 @@ function renderVerdict(coach, neto, hasData) {
   } else if (neto > 0) {
     vCard.classList.add('yo-pago');
     vAmt.innerHTML = `$${fmt(abs)}<span class="mxn">MXN</span>`;
-    vWho.textContent = `Tú le pagas a ${name}`;
+    vWho.textContent = `Tú le pagas a ${names[coach]}`;
   } else {
     vCard.classList.add('coach-paga');
     vAmt.innerHTML = `$${fmt(abs)}<span class="mxn">MXN</span>`;
-    vWho.textContent = `${name} te paga a ti`;
+    vWho.textContent = `${names[coach]} te paga a ti`;
   }
 
   const saveBtn = document.getElementById(coach+'-saveBtn');
   saveBtn.disabled = !hasData;
-  saveBtn.textContent = editingId[coach] ? 'Guardar cambios' : 'Guardar quincena';
+  const labels = { ulises:'Guardar período', mitzi:'Guardar quincena', mario:'Guardar quincena' };
+  saveBtn.textContent = editingId[coach] ? 'Guardar cambios' : labels[coach];
 }
 
-// ─── CALC ULISES ──────────────────────────────────────────
-function calcUlises() {
-  const base   = countBaseClasses('ulises');
-  const absent = v('ulises-absent');
-  const extra  = v('ulises-extra');
+// ─── CALC GENERIC (Ulises & Mitzi) ────────────────────────
+function calcCoach(coach) {
+  if (coach === 'mario') return calcMario();
+
+  const base   = countBaseClasses(coach);
+  const absent = v(coach+'-absent');
+  const extra  = v(coach+'-extra');
   const total  = Math.max(0, base - absent + extra);
+  const rate   = RATES[coach];
 
-  document.getElementById('ulises-total-count').textContent = total;
+  document.getElementById(coach+'-total-count').textContent = total;
 
-  const porClases = total * 200;
+  const porClases = total * rate;
   const hasData   = total > 0;
 
   const rows = [];
@@ -898,20 +1031,21 @@ function calcUlises() {
     if (absent > 0) parts.push(`−${absent} no dadas`);
     if (extra > 0)  parts.push(`+${extra} extra`);
     if (parts.length) label += ` (${parts.join(', ')})`;
-    label += ' × $200';
+    label += ` × $${rate}`;
     rows.push({ label, val: porClases });
   }
 
   let html = rows.length === 0
-    ? '<div class="bd-row"><span>Ingresa los datos de la quincena</span></div>'
+    ? '<div class="bd-row"><span>Ingresa los datos</span></div>'
     : rows.map(r => `<div class="bd-row"><span>${r.label}</span><span style="color:var(--red)">−$${fmt(r.val)}</span></div>`).join('');
 
+  const names = { ulises:'Ulises', mitzi:'Mitzi' };
   if (rows.length > 0) {
-    html += `<div class="bd-row bd-divider"><span style="color:var(--text)">Total a pagarle a Ulises</span><span>$${fmt(porClases)}</span></div>`;
+    html += `<div class="bd-row bd-divider"><span style="color:var(--text)">Total a pagarle a ${names[coach]}</span><span>$${fmt(porClases)}</span></div>`;
   }
 
-  document.getElementById('ulises-breakdown').innerHTML = html;
-  renderVerdict('ulises', porClases, hasData);
+  document.getElementById(coach+'-breakdown').innerHTML = html;
+  renderVerdict(coach, porClases, hasData);
   return { base, absent, extra, totalClases: total, neto: porClases };
 }
 
@@ -1017,7 +1151,7 @@ function calcMario() {
 // ─── SAVE / EDIT / DELETE ─────────────────────────────────
 function saveQ(coach) {
   const savedAt = new Date().toLocaleDateString('es-MX', {day:'2-digit',month:'short',year:'numeric'});
-  const d       = coach === 'ulises' ? calcUlises() : calcMario();
+  const d       = calcCoach(coach);
   const label   = getQuincenaLabel(coach);
   const history = loadHistory(coach);
 
@@ -1029,7 +1163,7 @@ function saveQ(coach) {
     showToast('Cambios guardados ✓');
   } else {
     history.unshift({ id: Date.now(), periodo: label, savedAt, ...d });
-    showToast('Quincena guardada ✓');
+    showToast(coach === 'ulises' ? 'Período guardado ✓' : 'Quincena guardada ✓');
   }
 
   saveHistoryStore(coach, history);
@@ -1047,22 +1181,44 @@ function editEntry(coach, id) {
   const calcBtn = document.querySelector(`#panel-${coach} .sub-tab`);
   setSubTab(coach, 'calc', calcBtn);
 
-  const parts = entry.periodo.split(' ');
-  if (parts.length >= 3) {
-    const monthIdx = MONTHS.indexOf(parts[1]);
-    const year     = parseInt(parts[2]);
-    const q        = entry.periodo.startsWith('1') ? '1' : '2';
-    document.getElementById(coach+'-q').value = q;
-    if (monthIdx !== -1) document.getElementById(coach+'-m').value = monthIdx;
-    document.getElementById(coach+'-y').value = year;
-    onQuincenaChange(coach);
-  }
-
   if (coach === 'ulises') {
+    // parse "16 Mes–15 Mes Año"
+    const match = entry.periodo.match(/16 (\w+)[–-]15 \w+ (\d{4})/);
+    if (match) {
+      const mIdx = MONTHS.indexOf(match[1]);
+      const yr   = parseInt(match[2]) - (MONTHS.indexOf(match[1]) === 11 ? 1 : 0);
+      if (mIdx !== -1) document.getElementById('ulises-m').value = mIdx;
+      document.getElementById('ulises-y').value = yr;
+      onPeriodChange('ulises');
+    }
     document.getElementById('ulises-absent').value = entry.absent || 0;
     document.getElementById('ulises-extra').value  = entry.extra  || 0;
-    calcUlises();
+    calcCoach('ulises');
+  } else if (coach === 'mitzi') {
+    const parts = entry.periodo.split(' ');
+    if (parts.length >= 3) {
+      const mIdx = MONTHS.indexOf(parts[1]);
+      const yr   = parseInt(parts[2]);
+      const q    = entry.periodo.startsWith('1') ? '1' : '2';
+      document.getElementById('mitzi-q').value = q;
+      if (mIdx !== -1) document.getElementById('mitzi-m').value = mIdx;
+      document.getElementById('mitzi-y').value = yr;
+      onQuincenaChange('mitzi');
+    }
+    document.getElementById('mitzi-absent').value = entry.absent || 0;
+    document.getElementById('mitzi-extra').value  = entry.extra  || 0;
+    calcCoach('mitzi');
   } else {
+    const parts = entry.periodo.split(' ');
+    if (parts.length >= 3) {
+      const mIdx = MONTHS.indexOf(parts[1]);
+      const yr   = parseInt(parts[2]);
+      const q    = entry.periodo.startsWith('1') ? '1' : '2';
+      document.getElementById('mario-q').value = q;
+      if (mIdx !== -1) document.getElementById('mario-m').value = mIdx;
+      document.getElementById('mario-y').value = yr;
+      onQuincenaChange('mario');
+    }
     document.getElementById('mario-absent').value = entry.absent || 0;
     document.getElementById('mario-extra').value  = entry.extra  || 0;
     clinicas = (entry.clinicasData || []).map(c => ({ ...c, id: clinicaIdCounter++ }));
@@ -1085,14 +1241,13 @@ function deleteEntry(coach, id) {
 }
 
 function resetCoach(coach) {
-  if (coach === 'ulises') {
-    ['ulises-absent','ulises-extra'].forEach(id => document.getElementById(id).value = 0);
-    calcUlises();
-  } else {
-    ['mario-absent','mario-extra'].forEach(id => document.getElementById(id).value = 0);
+  [coach+'-absent', coach+'-extra'].forEach(id => document.getElementById(id).value = 0);
+  if (coach === 'mario') {
     clinicas = [];
     renderClinicas();
     calcMario();
+  } else {
+    calcCoach(coach);
   }
 }
 
@@ -1104,7 +1259,7 @@ function renderHistory(coach) {
 
   if (history.length === 0) {
     bar.style.display = 'none';
-    list.innerHTML = '<div class="history-empty">Aún no hay quincenas guardadas.</div>';
+    list.innerHTML = '<div class="history-empty">Aún no hay registros guardados.</div>';
     return;
   }
 
@@ -1114,16 +1269,22 @@ function renderHistory(coach) {
     document.getElementById('ulises-sumCount').textContent  = history.length;
     document.getElementById('ulises-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
     document.getElementById('ulises-sumPagado').textContent = '$'+fmt(history.reduce((a,e)=>a+(e.neto||0),0));
+  } else if (coach === 'mitzi') {
+    document.getElementById('mitzi-sumCount').textContent  = history.length;
+    document.getElementById('mitzi-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
+    document.getElementById('mitzi-sumPagado').textContent = '$'+fmt(history.reduce((a,e)=>a+(e.neto||0),0));
   } else {
     document.getElementById('mario-sumCount').textContent  = history.length;
     document.getElementById('mario-sumClases').textContent = history.reduce((a,e)=>a+(e.totalClases||0),0);
     document.getElementById('mario-sumClin').textContent   = history.reduce((a,e)=>a+(e.totalClinicas||0),0);
   }
 
+  const names = { ulises:'Ulises', mitzi:'Mitzi', mario:'Mario' };
+
   list.innerHTML = history.map(e => {
     const abs = Math.abs(e.neto);
     const cls = e.neto > 0 ? 'yo-pago' : e.neto < 0 ? 'coach-paga' : 'cero';
-    const who = e.neto > 0 ? '← Tú pagaste' : e.neto < 0 ? `← ${coach==='ulises'?'Ulises':'Mario'} pagó` : 'A mano';
+    const who = e.neto > 0 ? `← Tú pagaste` : e.neto < 0 ? `← ${names[coach]} pagó` : 'A mano';
 
     let chips = '';
     if (e.totalClases > 0) chips += `<span class="chip">🥊 ${e.totalClases} clases</span>`;
@@ -1157,7 +1318,8 @@ function renderHistory(coach) {
 
 // ─── BOOT ─────────────────────────────────────────────────
 initYears();
-onQuincenaChange('ulises');
+onPeriodChange('ulises');
+onQuincenaChange('mitzi');
 onQuincenaChange('mario');
 renderClinicas();
 </script>
