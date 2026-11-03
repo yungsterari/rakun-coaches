@@ -528,6 +528,13 @@
   }
 
   .toast.show { transform: translateX(-50%) translateY(0); }
+  .backup { max-width: 520px; margin: 28px auto 0; padding: 0 16px; }
+  .backup summary { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); cursor: pointer; padding: 10px 0; }
+  .backup p { font-size: 11px; color: var(--muted2); line-height: 1.5; margin: 6px 0 10px; }
+  .backup textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 10px; padding: 8px; }
+  .backup-btns { display: flex; gap: 8px; margin-top: 8px; }
+  .backup-btns button { flex: 1; padding: 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+  .backup-btns button:hover { border-color: var(--yellow); color: var(--yellow); }
 </style>
 </head>
 <body>
@@ -810,6 +817,16 @@
   </div>
 </div>
 
+<details class="backup">
+  <summary>Respaldo del historial</summary>
+  <p>"Copiar respaldo" copia todo tu historial. Pégalo en Notas o mándatelo por WhatsApp para guardarlo. Para recuperarlo, pega ese texto aquí y toca "Restaurar".</p>
+  <textarea id="backup-text" rows="4" placeholder="Aquí aparece el respaldo..."></textarea>
+  <div class="backup-btns">
+    <button onclick="exportBackup()">Copiar respaldo</button>
+    <button onclick="importBackup()">Restaurar</button>
+  </div>
+</details>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -824,7 +841,10 @@ const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MONTHS_SHORT = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
-const MARIO_HISTORY_SEED = [{"id":1,"periodo":"16\u201331 Agosto 2026","savedAt":"31 ago 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":13300},{"id":2,"periodo":"1\u201315 Agosto 2026","savedAt":"17 ago 2026","base":60,"absent":0,"extra":0,"totalClases":60,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":12500},{"id":3,"periodo":"16\u201331 Julio 2026","savedAt":"29 jul 2026","base":70,"absent":0,"extra":0,"totalClases":70,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":14500},{"id":4,"periodo":"1\u201315 Julio 2026","savedAt":"14 jul 2026","base":61,"absent":0,"extra":0,"totalClases":61,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":4}],"porClinicas":500,"neto":12700},{"id":5,"periodo":"16\u201330 Junio 2026","savedAt":"29 jun 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":13300},{"id":6,"periodo":"1\u201315 Junio 2026","savedAt":"13 jun 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":3,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2},{"id":3,"personas":2}],"porClinicas":750,"neto":13550},{"id":7,"periodo":"16\u201331 Mayo 2026","savedAt":"30 may 2026","base":60,"absent":0,"extra":0,"totalClases":60,"totalClinicas":2,"clinicasData":[{"id":1,"personas":2},{"id":2,"personas":2}],"porClinicas":500,"neto":12500},{"id":8,"periodo":"1\u201315 Mayo 2026","savedAt":"15 may 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":4},{"id":2,"personas":3}],"porClinicas":500,"neto":13300},{"id":9,"periodo":"16\u201330 Abril 2026","savedAt":"30 abr 2026","base":64,"absent":0,"extra":0,"totalClases":64,"totalClinicas":2,"clinicasData":[{"id":1,"personas":5},{"id":2,"personas":6}],"porClinicas":650,"neto":13450},{"id":10,"periodo":"1\u201315 Abril 2026","savedAt":"15 abr 2026","base":61,"absent":0,"extra":0,"totalClases":61,"totalClinicas":2,"clinicasData":[{"id":1,"personas":6},{"id":2,"personas":6}],"porClinicas":700,"neto":12900}];
+const MARIO_HISTORY_SEED = [{"id": 11, "periodo": "1\u201315 Octubre 2026", "savedAt": "15 oct 2026", "base": 64, "absent": 0, "extra": 4, "totalClases": 68, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 4}, {"id": 2, "personas": 4}], "porClinicas": 500, "neto": 14100}, {"id": 1, "periodo": "16\u201331 Agosto 2026", "savedAt": "31 ago 2026", "base": 64, "absent": 0, "extra": 0, "totalClases": 64, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 2}], "porClinicas": 500, "neto": 13300}, {"id": 2, "periodo": "1\u201315 Agosto 2026", "savedAt": "17 ago 2026", "base": 60, "absent": 0, "extra": 0, "totalClases": 60, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 2}], "porClinicas": 500, "neto": 12500}, {"id": 3, "periodo": "16\u201331 Julio 2026", "savedAt": "29 jul 2026", "base": 70, "absent": 0, "extra": 0, "totalClases": 70, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 2}], "porClinicas": 500, "neto": 14500}, {"id": 4, "periodo": "1\u201315 Julio 2026", "savedAt": "14 jul 2026", "base": 61, "absent": 0, "extra": 0, "totalClases": 61, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 4}], "porClinicas": 500, "neto": 12700}, {"id": 5, "periodo": "16\u201330 Junio 2026", "savedAt": "29 jun 2026", "base": 64, "absent": 0, "extra": 0, "totalClases": 64, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 2}], "porClinicas": 500, "neto": 13300}, {"id": 6, "periodo": "1\u201315 Junio 2026", "savedAt": "13 jun 2026", "base": 64, "absent": 0, "extra": 0, "totalClases": 64, "totalClinicas": 3, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 2}, {"id": 3, "personas": 2}], "porClinicas": 750, "neto": 13550}, {"id": 7, "periodo": "16\u201331 Mayo 2026", "savedAt": "30 may 2026", "base": 60, "absent": 0, "extra": 0, "totalClases": 60, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 2}, {"id": 2, "personas": 2}], "porClinicas": 500, "neto": 12500}, {"id": 8, "periodo": "1\u201315 Mayo 2026", "savedAt": "15 may 2026", "base": 64, "absent": 0, "extra": 0, "totalClases": 64, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 4}, {"id": 2, "personas": 3}], "porClinicas": 500, "neto": 13300}, {"id": 9, "periodo": "16\u201330 Abril 2026", "savedAt": "30 abr 2026", "base": 64, "absent": 0, "extra": 0, "totalClases": 64, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 5}, {"id": 2, "personas": 6}], "porClinicas": 650, "neto": 13450}, {"id": 10, "periodo": "1\u201315 Abril 2026", "savedAt": "15 abr 2026", "base": 61, "absent": 0, "extra": 0, "totalClases": 61, "totalClinicas": 2, "clinicasData": [{"id": 1, "personas": 6}, {"id": 2, "personas": 6}], "porClinicas": 700, "neto": 12900}];
+const ULISES_HISTORY_SEED = [{"id": 1002, "periodo": "16 Septiembre\u201315 Octubre 2026", "savedAt": "16 oct 2026", "base": 39, "absent": 3, "extra": 0, "totalClases": 36, "neto": 7200}, {"id": 1001, "periodo": "16 Agosto\u201315 Septiembre 2026", "savedAt": "05 oct 2026", "base": 39, "absent": 0, "extra": 0, "totalClases": 39, "neto": 7800}];
+const MITZI_HISTORY_SEED = [{"id": 2001, "periodo": "16\u201330 Septiembre 2026", "savedAt": "05 oct 2026", "base": 21, "absent": 0, "extra": 0, "totalClases": 21, "neto": 6300}];
+const SEEDS = { mario: MARIO_HISTORY_SEED, ulises: ULISES_HISTORY_SEED, mitzi: MITZI_HISTORY_SEED };
 
 let clinicas = [];
 let clinicaIdCounter = 1;
@@ -835,9 +855,9 @@ function loadHistory(coach) {
   try {
     const data = localStorage.getItem('rakun-history-' + coach);
     if (data) return JSON.parse(data);
-    if (coach === 'mario') {
-      localStorage.setItem('rakun-history-mario', JSON.stringify(MARIO_HISTORY_SEED));
-      return MARIO_HISTORY_SEED;
+    if (SEEDS[coach]) {
+      localStorage.setItem('rakun-history-' + coach, JSON.stringify(SEEDS[coach]));
+      return SEEDS[coach];
     }
     return [];
   } catch { return []; }
@@ -1171,6 +1191,9 @@ function editEntry(coach, id) {
   const history = loadHistory(coach);
   const entry   = history.find(e => e.id === id);
   if (!entry) return;
+  if (coach === 'mitzi' && !/^1[–-](28|29|30|31) /.test(entry.periodo)) {
+    showToast('Registro quincenal: no se edita'); return;
+  }
 
   editingId[coach] = id;
   document.getElementById(coach+'-edit-banner').classList.add('visible');
@@ -1309,6 +1332,38 @@ function renderHistory(coach) {
         </div>
       </div>`;
   }).join('');
+}
+
+// ─── RESPALDO ─────────────────────────────────────────────
+function exportBackup() {
+  const txt = JSON.stringify({ app: 'rakun-coaches', fecha: new Date().toISOString(),
+    ulises: loadHistory('ulises'), mitzi: loadHistory('mitzi'), mario: loadHistory('mario') });
+  const ta = document.getElementById('backup-text');
+  ta.value = txt;
+  const fallback = () => { ta.focus(); ta.select(); ta.setSelectionRange(0, txt.length);
+    let ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
+    showToast(ok ? 'Respaldo copiado ✓' : 'Copia el texto de la caja'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(() => showToast('Respaldo copiado ✓')).catch(fallback);
+  } else { fallback(); }
+}
+
+function importBackup() {
+  let data;
+  try { data = JSON.parse(document.getElementById('backup-text').value.trim()); }
+  catch (_) { showToast('Texto no válido'); return; }
+  if (!data || data.app !== 'rakun-coaches') { showToast('No es un respaldo'); return; }
+  let added = 0;
+  ['ulises', 'mitzi', 'mario'].forEach(c => {
+    if (!Array.isArray(data[c])) return;
+    const cur = loadHistory(c);
+    const ids = new Set(cur.map(e => e.id));
+    const merged = cur.concat(data[c].filter(e => !ids.has(e.id)));
+    added += merged.length - cur.length;
+    saveHistoryStore(c, merged);
+    renderHistory(c);
+  });
+  showToast(added ? `Restaurados: ${added} registros ✓` : 'Todo ya estaba guardado');
 }
 
 // ─── OFFLINE ──────────────────────────────────────────────
