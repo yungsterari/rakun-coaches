@@ -638,16 +638,12 @@
   <div class="sub-panel active" id="mitzi-calc">
     <div class="content">
       <div class="edit-banner" id="mitzi-edit-banner">
-        <span>✏️ Editando quincena</span>
+        <span>✏️ Editando mes</span>
         <button onclick="cancelEdit('mitzi')">Cancelar</button>
       </div>
       <div class="quincena-picker">
-        <div class="picker-label">Selecciona la quincena</div>
+        <div class="picker-label">Período mensual (1 al fin de mes)</div>
         <div class="picker-row">
-          <select id="mitzi-q" onchange="onQuincenaChange('mitzi')">
-            <option value="1">1ra quincena (1–15)</option>
-            <option value="2">2da quincena (16–fin)</option>
-          </select>
           <select id="mitzi-m" onchange="onQuincenaChange('mitzi')">
             <option value="0">Enero</option><option value="1">Febrero</option>
             <option value="2">Marzo</option><option value="3">Abril</option>
@@ -669,7 +665,7 @@
           <div class="card-icon">📅</div>
         </div>
         <div class="base-classes-info">
-          <span>Clases base en esta quincena</span>
+          <span>Clases base en este mes</span>
           <span id="mitzi-base-count">0</span>
         </div>
         <div class="card-sublabel"><span class="dot dot-r"></span>Clases no dadas</div>
@@ -698,7 +694,7 @@
             <div class="verdict-who" id="mitzi-vwho">Sin movimientos</div>
           </div>
         </div>
-        <button class="save-btn" id="mitzi-saveBtn" onclick="saveQ('mitzi')" disabled>Guardar quincena</button>
+        <button class="save-btn" id="mitzi-saveBtn" onclick="saveQ('mitzi')" disabled>Guardar mes</button>
         <button class="reset-btn" onclick="resetCoach('mitzi')">↺ &nbsp; Reiniciar</button>
       </div>
     </div>
@@ -706,7 +702,7 @@
   <div class="sub-panel" id="mitzi-history">
     <div class="content">
       <div class="summary-bar" id="mitzi-sumBar" style="display:none">
-        <div class="sum-stat"><div class="sum-stat-label">Quincenas</div><div class="sum-stat-val" id="mitzi-sumCount">0</div></div>
+        <div class="sum-stat"><div class="sum-stat-label">Meses</div><div class="sum-stat-val" id="mitzi-sumCount">0</div></div>
         <div class="sum-stat"><div class="sum-stat-label">Clases total</div><div class="sum-stat-val" id="mitzi-sumClases">0</div></div>
         <div class="sum-stat"><div class="sum-stat-label">Total pagado</div><div class="sum-stat-val" id="mitzi-sumPagado">$0</div></div>
       </div>
@@ -909,9 +905,10 @@ function onPeriodChange(coach) {
 
 // ─── QUINCENA (Mitzi & Mario) ──────────────────────────────
 function getQuincenaRange(coach) {
-  const q = parseInt(document.getElementById(coach+'-q').value);
   const m = parseInt(document.getElementById(coach+'-m').value);
   const y = parseInt(document.getElementById(coach+'-y').value);
+  if (coach === 'mitzi') return { start: 1, end: new Date(y, m+1, 0).getDate(), m, y };
+  const q = parseInt(document.getElementById(coach+'-q').value);
   const start = q === 1 ? 1 : 16;
   const end   = q === 1 ? 15 : new Date(y, m+1, 0).getDate();
   return { start, end, m, y };
@@ -1004,7 +1001,7 @@ function renderVerdict(coach, neto, hasData) {
 
   const saveBtn = document.getElementById(coach+'-saveBtn');
   saveBtn.disabled = !hasData;
-  const labels = { ulises:'Guardar período', mitzi:'Guardar quincena', mario:'Guardar quincena' };
+  const labels = { ulises:'Guardar período', mitzi:'Guardar mes', mario:'Guardar quincena' };
   saveBtn.textContent = editingId[coach] ? 'Guardar cambios' : labels[coach];
 }
 
@@ -1163,7 +1160,7 @@ function saveQ(coach) {
     showToast('Cambios guardados ✓');
   } else {
     history.unshift({ id: Date.now(), periodo: label, savedAt, ...d });
-    showToast(coach === 'ulises' ? 'Período guardado ✓' : 'Quincena guardada ✓');
+    showToast(coach === 'mario' ? 'Quincena guardada ✓' : coach === 'mitzi' ? 'Mes guardado ✓' : 'Período guardado ✓');
   }
 
   saveHistoryStore(coach, history);
@@ -1199,8 +1196,6 @@ function editEntry(coach, id) {
     if (parts.length >= 3) {
       const mIdx = MONTHS.indexOf(parts[1]);
       const yr   = parseInt(parts[2]);
-      const q    = entry.periodo.startsWith('1') ? '1' : '2';
-      document.getElementById('mitzi-q').value = q;
       if (mIdx !== -1) document.getElementById('mitzi-m').value = mIdx;
       document.getElementById('mitzi-y').value = yr;
       onQuincenaChange('mitzi');
@@ -1314,6 +1309,11 @@ function renderHistory(coach) {
         </div>
       </div>`;
   }).join('');
+}
+
+// ─── OFFLINE ──────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
 // ─── BOOT ─────────────────────────────────────────────────
