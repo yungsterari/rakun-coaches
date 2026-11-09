@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rakun Race · 3 carriles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff; --ink:#0a1a24; --muted:#5b6b75; --line:#d5dee3;
+  --cyan:#1f9fc4; --cyan-soft:#e3f5fb; --done:#c8ef1a; --done-ink:#0a1a24; --warn:#c0392b;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#05111a; --ink:#eef6f9; --muted:#8aa0ab; --line:#1d3340;
+    --cyan:#7dd6f0; --cyan-soft:#0b2533; --warn:#ff7a6b; color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.4 Barlow,system-ui,sans-serif;
+  display:flex;flex-direction:column;min-height:100vh}
+.bb{font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;letter-spacing:.02em}
+
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;flex-wrap:wrap}
+header h1{margin:0 auto 0 0;font-size:clamp(26px,2.4vw,40px);line-height:1}
+header label.chk{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+
+.nobt{margin:0 20px 12px;border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:12px;display:none}
+
+.lanes{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0 20px 20px}
+@media (max-width:900px){.lanes{grid-template-columns:1fr}}
+
+.lane{border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;
+  transition:background .25s,border-color .25s}
+.lane.done{background:var(--done);color:var(--done-ink);border-color:var(--done)}
+.lane-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.name{font-size:clamp(28px,3vw,52px);line-height:1;background:none;border:0;color:inherit;padding:0;min-width:0;flex:1}
+.clock{font-size:clamp(32px,4vw,76px);line-height:1;font-variant-numeric:tabular-nums}
+.total{text-align:center}
+.total .n{display:block;font-size:clamp(80px,min(15vw,34vh),360px);line-height:.85;font-variant-numeric:tabular-nums}
+.of{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:6px;
+  color:var(--muted);font-weight:600;font-size:clamp(16px,1.4vw,24px)}
+.goal::-webkit-outer-spin-button,.goal::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.goal{-moz-appearance:textfield;appearance:textfield;width:3.6em;font-size:clamp(24px,2.2vw,38px);line-height:1;text-align:center;
+  border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);padding:2px 4px}
+.lane.done .goal{color:inherit;border-color:rgba(0,0,0,.35)}
+.bar{height:14px;border-radius:7px;background:var(--cyan-soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--cyan);transition:width .2s}
+.status{text-align:center;font-weight:600;font-size:clamp(16px,1.6vw,28px);min-height:1.4em}
+
+.ergs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.erg{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.erg h3{margin:0;font-size:22px;line-height:1}
+.erg .cal{font-size:clamp(30px,2.6vw,48px);line-height:1;font-variant-numeric:tabular-nums}
+.erg .st{font-size:12px;color:var(--muted);min-height:2.6em;overflow-wrap:anywhere}
+.erg .st.bad{color:var(--warn)}
+
+button{font:600 15px/1 Barlow,system-ui,sans-serif;border-radius:8px;padding:10px 12px;cursor:pointer;
+  border:1px solid var(--cyan);background:transparent;color:var(--cyan)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.next{background:var(--ink);color:var(--bg);border-color:var(--ink);font-size:18px;padding:14px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.sim{display:none}
+body.test .sim{display:block}
+.last{text-align:center;font-size:14px;color:var(--muted);min-height:1.4em}
+
+.lane.done .of,.lane.done .erg .st,.lane.done .last{color:inherit}
+.lane.done .bar{background:rgba(0,0,0,.12)}
+.lane.done .bar i{background:var(--done-ink)}
+.lane.done .erg{border-color:rgba(0,0,0,.25)}
+.lane.done button{border-color:var(--done-ink);color:var(--done-ink)}
+.lane.done button.next{background:var(--done-ink);color:var(--done)}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="bb">Rakun Race · Ski + Bike</h1>
+  <label class="chk"><input type="checkbox" id="test"> Modo prueba</label>
+  <button id="fs">Pantalla completa</button>
+</header>
+
+<div class="nobt" id="nobt">Este navegador no tiene Bluetooth web. Abre esta página en Chrome en tu compu.</div>
+
+<div class="lanes" id="lanes"></div>
+
+<script>
+const SVC  = 'ce060030-43e5-11e4-916c-0800200c9a66';
+const ST2  = 'ce060033-43e5-11e4-916c-0800200c9a66'; // Additional Status 2: Total Calories en bytes 6–7
+const RATE = 'ce060034-43e5-11e4-916c-0800200c9a66'; // frecuencia de envío
+const MACHINES = ['SkiErg', 'BikeErg'];
+const KEY = 'rakun-carriles-3';
+
+const $ = id => document.getElementById(id);
+const lanes = [0,1,2].map(n => ({
+  n, state:'waiting', startedAt:null, finishedAt:null, prev:null,   // state: waiting | running | done
+  ergs: [0,1].map(i => ({ i, device:null, raw:null, contrib:0 }))
+}));
+const allErgs = () => lanes.flatMap(l => l.ergs.map(e => ({ l, e })));
+
+$('lanes').innerHTML = lanes.map(l => `
+  <section class="lane" id="L${l.n}">
+    <div class="lane-top">
+      <input class="name bb" id="name${l.n}" value="Carril ${l.n+1}" aria-label="Nombre del carril ${l.n+1}">
+      <span class="clock bb" id="clock${l.n}">0:00</span>
+    </div>
+    <div class="total"><span class="n bb" id="total${l.n}">0</span><label class="of">de <input class="goal bb" id="target${l.n}" type="number" inputmode="numeric" min="1" value="200" aria-label="Meta del carril ${l.n+1}"> cal</label></div>
+    <div class="bar"><i id="bar${l.n}"></i></div>
+    <div class="status" id="status${l.n}"></div>
+    <div class="ergs">
+      ${l.ergs.map(e => `
+        <div class="erg">
+          <h3 class="bb">${MACHINES[e.i]}</h3>
+          <span class="cal bb" id="c${l.n}${e.i}">0</span>
+          <span class="st" id="s${l.n}${e.i}">Sin conectar</span>
+          <button id="b${l.n}${e.i}">Conectar</button>
+          <button class="sim" data-lane="${l.n}" data-erg="${e.i}">+5 cal</button>
+        </div>`).join('')}
+    </div>
+    <button class="next" id="next${l.n}">Siguiente pareja</button>
+    <div class="last" id="last${l.n}"></div>
+  </section>`).join('');
+
+// Guardar nombres de carril y meta en esta compu
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+  (saved.names || []).forEach((v, n) => { if (v && $('name'+n)) $('name'+n).value = v; });
+  (saved.targets || []).forEach((v, n) => { if (v && $('target'+n)) $('target'+n).value = v; });
+} catch(e) {}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify({
+    names: lanes.map(l => $('name'+l.n).value),
+    targets: lanes.map(l => $('target'+l.n).value)
+  })); } catch(e) {}
+}
+lanes.forEach(l => {
+  $('name'+l.n).addEventListener('change', save);
+  $('target'+l.n).addEventListener('input', () => {
+    save();
+    if (l.state === 'running' && total(l) >= target(l)) finish(l);
+    render(l);
+  });
+});
+
+const target = l => Math.max(1, parseInt($('target'+l.n).value, 10) || 200);
+const total = l => l.ergs[0].contrib + l.ergs[1].contrib;
+const fmt = ms => { const s = Math.floor(ms/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+const testMode = () => document.body.classList.contains('test');
+
+function render(l){
+  const n = l.n, t = total(l), goal = target(l);
+  $('total'+n).textContent = t;
+  $('bar'+n).style.width = Math.min(100, t/goal*100) + '%';
+  l.ergs.forEach(e => $(`c${n}${e.i}`).textContent = e.contrib);
+  $('L'+n).classList.toggle('done', l.state === 'done');
+  $('clock'+n).textContent = l.state === 'waiting' ? '0:00' : fmt((l.finishedAt || Date.now()) - l.startedAt);
+  $('status'+n).textContent =
+      l.state === 'done'    ? '¡Listo! Avancen'
+    : l.state === 'running' ? `Faltan ${Math.max(0, goal - t)} cal`
+    : (l.ergs.every(e => e.device) || testMode()) ? 'Listos. El tiempo arranca con la primera caloría'
+    : 'Conecta las dos máquinas';
+  $('last'+n).textContent = l.prev ? `Pareja anterior: ${l.prev}` : '';
+}
+const renderAll = () => lanes.forEach(render);
+
+setInterval(() => lanes.forEach(l => {
+  if (l.state === 'running') $('clock'+l.n).textContent = fmt(Date.now() - l.startedAt);
+}), 250);
+
+// Recibe el total de calorías que marca el monitor y suma solo lo nuevo
+function onCalories(l, e, raw){
+  if (e.raw === null) { e.raw = raw; return; }
+  const delta = raw >= e.raw ? raw - e.raw : raw; // si el monitor se reinició, cuenta desde 0
+  e.raw = raw;
+  if (delta <= 0 || l.state === 'done') return;
+  addCalories(l, e, delta);
+}
+
+function addCalories(l, e, delta){
+  if (l.state === 'waiting') { l.state = 'running'; l.startedAt = Date.now(); }
+  e.contrib += delta;
+  if (total(l) >= target(l)) finish(l);
+  render(l);
+}
+
+function finish(l){
+  l.state = 'done'; l.finishedAt = Date.now();
+  beep();
+}
+
+function nextPair(l){
+  if (l.state === 'done') l.prev = fmt(l.finishedAt - l.startedAt);
+  l.ergs.forEach(e => e.contrib = 0);   // "raw" se queda: solo cuenta lo que hagan desde ahora
+  l.state = 'waiting'; l.startedAt = l.finishedAt = null;
+  render(l);
+}
+lanes.forEach(l => $('next'+l.n).addEventListener('click', () => nextPair(l)));
+
+let audio;
+function unlockAudio(){ try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch(e) {} }
+function beep(){
+  try {
+    unlockAudio();
+    [0, .25, .5].forEach(off => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(.4, audio.currentTime + off);
+      g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + off + .2);
+      o.start(audio.currentTime + off); o.stop(audio.currentTime + off + .22);
+    });
+  } catch(e) {}
+}
+document.addEventListener('click', unlockAudio);
+
+function setSt(l, e, text, bad){
+  const el = $(`s${l.n}${e.i}`); el.textContent = text; el.classList.toggle('bad', !!bad);
+}
+
+async function connect(l, e){
+  try {
+    const device = await navigator.bluetooth.requestDevice({ filters:[{ namePrefix:'PM5' }], optionalServices:[SVC] });
+    const taken = allErgs().find(x => x.e !== e && x.e.device && x.e.device.id === device.id);
+    if (taken) {
+      setSt(l, e, `Esa máquina ya está en ${$('name'+taken.l.n).value} · ${MACHINES[taken.e.i]}`, true);
+      return;
+    }
+    const old = e.device;
+    if (old !== device) {
+      e.device = device; e.raw = null;
+      if (old) { try { old.gatt.disconnect(); } catch(err) {} }
+    }
+    e.onValue = e.onValue || (ev => {
+      if (ev.target.service.device !== e.device) return;   // ignora la máquina que se cambió
+      const dv = ev.target.value;
+      if (dv.byteLength >= 8) onCalories(l, e, dv.getUint16(6, true));
+    });
+    e.onDisc = e.onDisc || (ev => { if (ev.target === e.device) reconnect(l, e); });
+    device.addEventListener('gattserverdisconnected', e.onDisc);
+    await attach(l, e);
+  } catch(err) {
+    if (err.name !== 'NotFoundError') setSt(l, e, 'No se pudo conectar: ' + err.message, true);
+  }
+}
+
+async function attach(l, e){
+  const device = e.device;
+  setSt(l, e, 'Conectando…');
+  const server = await device.gatt.connect();
+  const svc = await server.getPrimaryService(SVC);
+  try { await (await svc.getCharacteristic(RATE)).writeValue(new Uint8Array([2])); } catch(err) {} // cada 250 ms
+  const ch = await svc.getCharacteristic(ST2);
+  ch.addEventListener('characteristicvaluechanged', e.onValue);
+  await ch.startNotifications();
+  if (e.device !== device) return;
+  setSt(l, e, 'Conectado · ' + (device.name || 'PM5'));
+  $(`b${l.n}${e.i}`).textContent = 'Cambiar';
+  render(l);
+}
+
+async function reconnect(l, e){
+  const device = e.device;
+  setSt(l, e, 'Se desconectó. Reconectando…', true);
+  for (let k = 0; k < 5; k++) {
+    if (e.device !== device) return;
+    try { await attach(l, e); return; } catch(err) { await new Promise(r => setTimeout(r, 1500)); }
+  }
+  if (e.device === device) setSt(l, e, 'Sin conexión. Toca Cambiar para volver a conectar', true);
+}
+
+allErgs().forEach(({ l, e }) => $(`b${l.n}${e.i}`).addEventListener('click', () => connect(l, e)));
+
+// Modo prueba
+$('test').addEventListener('change', ev => { document.body.classList.toggle('test', ev.target.checked); renderAll(); });
+document.querySelectorAll('.sim').forEach(b => b.addEventListener('click', () => {
+  const l = lanes[+b.dataset.lane];
+  if (l.state !== 'done') addCalories(l, l.ergs[+b.dataset.erg], 5);
+}));
+
+$('fs').addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen?.();
+});
+
+// Mantener la pantalla encendida
+async function keepAwake(){ try { await navigator.wakeLock?.request('screen'); } catch(e) {} }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+keepAwake();
+
+if (!navigator.bluetooth) {
+  $('nobt').style.display = 'block';
+  allErgs().forEach(({ l, e }) => $(`b${l.n}${e.i}`).disabled = true);
+}
+renderAll();
+</script>
+</body>
+</html>
