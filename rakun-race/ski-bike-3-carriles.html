@@ -6,81 +6,100 @@
 <title>Rakun Race · 3 carriles</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#ffffff; --ink:#0a1a24; --muted:#5b6b75; --line:#d5dee3;
-  --cyan:#1f9fc4; --cyan-soft:#e3f5fb; --done:#c8ef1a; --done-ink:#0a1a24; --warn:#c0392b;
-  box-sizing:border-box;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#05111a; --ink:#eef6f9; --muted:#8aa0ab; --line:#1d3340;
-    --cyan:#7dd6f0; --cyan-soft:#0b2533; --warn:#ff7a6b; color-scheme:dark;
-  }
+  --ink:#05070A; --ink-2:#0A0E14; --white:#EAF0F3; --muted:#AEB9C1;
+  --glow:#7FD8EC; --glow-bright:#B8ECF7;
+  --line:rgba(127,216,236,.18); --line-soft:rgba(234,240,243,.10);
+  --bebas:'Bebas Neue',Impact,sans-serif; --sans:'Archivo',"Segoe UI",system-ui,Arial,sans-serif;
+  color-scheme:dark; box-sizing:border-box;
 }
 *,*::before,*::after{box-sizing:inherit}
 html,body{margin:0;min-height:100%}
-body{background:var(--bg);color:var(--ink);font:400 16px/1.4 Barlow,system-ui,sans-serif;
-  display:flex;flex-direction:column;min-height:100vh}
-.bb{font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;letter-spacing:.02em}
+body{
+  background:radial-gradient(ellipse 80% 45% at 50% -10%,rgba(127,216,236,.13),transparent 70%),var(--ink);
+  color:var(--white);font:400 16px/1.4 var(--sans);
+  display:flex;flex-direction:column;min-height:100vh;
+}
+.bb{font-family:var(--bebas);font-weight:400;letter-spacing:.02em}
+.kicker{font:600 12px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--glow)}
 
-header{display:flex;align-items:center;gap:16px;padding:12px 20px;flex-wrap:wrap}
-header h1{margin:0 auto 0 0;font-size:clamp(26px,2.4vw,40px);line-height:1}
-header label.chk{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--muted)}
+header{display:flex;align-items:center;gap:20px;padding:14px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:18px;margin-right:auto}
+.brand img{height:clamp(64px,6.4vw,124px);width:auto;display:block;filter:drop-shadow(0 2px 12px rgba(0,0,0,.75))}
+.brand .sep{width:1px;align-self:stretch;background:var(--line)}
+.brand h1{margin:0;font-size:clamp(28px,2.6vw,46px);line-height:.9;text-transform:uppercase}
+.brand .kicker{display:block;margin-top:6px;font-size:clamp(11px,.8vw,14px)}
+header label.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+header input[type=checkbox]{accent-color:var(--glow)}
 
-.nobt{margin:0 20px 12px;border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:12px;display:none}
+.nobt{margin:0 20px 12px;border:1px dashed var(--glow);color:var(--white);border-radius:4px;padding:12px;display:none}
 
 .lanes{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0 20px 20px}
 @media (max-width:900px){.lanes{grid-template-columns:1fr}}
 
-.lane{border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;
-  transition:background .25s,border-color .25s}
-.lane.done{background:var(--done);color:var(--done-ink);border-color:var(--done)}
+.lane{background:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:10px;transition:background .25s,border-color .25s,box-shadow .25s,color .25s}
 .lane-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.name{font-size:clamp(28px,3vw,52px);line-height:1;background:none;border:0;color:inherit;padding:0;min-width:0;flex:1}
-.clock{font-size:clamp(32px,4vw,76px);line-height:1;font-variant-numeric:tabular-nums}
+.name{font-size:clamp(28px,3vw,52px);line-height:1;text-transform:uppercase;
+  background:none;border:0;color:inherit;padding:0;min-width:0;flex:1}
+.clock{font-size:clamp(34px,4vw,76px);line-height:1;color:var(--glow-bright);font-variant-numeric:tabular-nums}
 .total{text-align:center}
-.total .n{display:block;font-size:clamp(80px,min(15vw,34vh),360px);line-height:.85;font-variant-numeric:tabular-nums}
+.total .n{display:block;font-size:clamp(80px,min(15vw,34vh),360px);line-height:.85;font-variant-numeric:tabular-nums;
+  text-shadow:0 3px 18px rgba(0,0,0,.6)}
 .of{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:6px;
-  color:var(--muted);font-weight:600;font-size:clamp(16px,1.4vw,24px)}
+  color:var(--muted);font-weight:600;font-size:clamp(14px,1.2vw,20px);letter-spacing:.18em;text-transform:uppercase}
 .goal::-webkit-outer-spin-button,.goal::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.goal{-moz-appearance:textfield;appearance:textfield;width:3.6em;font-size:clamp(24px,2.2vw,38px);line-height:1;text-align:center;
-  border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);padding:2px 4px}
-.lane.done .goal{color:inherit;border-color:rgba(0,0,0,.35)}
-.bar{height:14px;border-radius:7px;background:var(--cyan-soft);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--cyan);transition:width .2s}
-.status{text-align:center;font-weight:600;font-size:clamp(16px,1.6vw,28px);min-height:1.4em}
+.goal{-moz-appearance:textfield;appearance:textfield;width:3.6em;font-size:clamp(24px,2.2vw,38px);line-height:1;
+  text-align:center;letter-spacing:.02em;border:1px solid var(--line);border-radius:4px;
+  background:transparent;color:var(--white);padding:4px 4px 0}
+.bar{height:12px;border-radius:2px;background:rgba(127,216,236,.12);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--glow);box-shadow:0 0 18px rgba(127,216,236,.7);transition:width .2s}
+.status{text-align:center;font-weight:600;font-size:clamp(15px,1.4vw,24px);letter-spacing:.06em;text-transform:uppercase;min-height:1.4em}
 
 .ergs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
-.erg{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.erg h3{margin:0;font-size:22px;line-height:1}
+.erg{border:1px solid var(--line-soft);border-radius:4px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .erg .cal{font-size:clamp(30px,2.6vw,48px);line-height:1;font-variant-numeric:tabular-nums}
 .erg .st{font-size:12px;color:var(--muted);min-height:2.6em;overflow-wrap:anywhere}
-.erg .st.bad{color:var(--warn)}
+.erg .st.bad{color:var(--white);font-weight:600}
 
-button{font:600 15px/1 Barlow,system-ui,sans-serif;border-radius:8px;padding:10px 12px;cursor:pointer;
-  border:1px solid var(--cyan);background:transparent;color:var(--cyan)}
-button:disabled{opacity:.4;cursor:not-allowed}
-button.next{background:var(--ink);color:var(--bg);border-color:var(--ink);font-size:18px;padding:14px}
-button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+button{font:600 12px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;border-radius:4px;padding:11px 12px 10px;
+  cursor:pointer;border:1px solid rgba(127,216,236,.55);background:transparent;color:var(--glow)}
+button:hover{border-color:var(--glow)}
+button:disabled{opacity:.35;cursor:not-allowed}
+button.next{font:400 clamp(20px,1.6vw,28px)/1 var(--bebas);letter-spacing:.10em;
+  background:var(--glow);color:var(--ink);border-color:var(--glow);padding:14px 20px 10px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--glow-bright);outline-offset:2px}
 .sim{display:none}
 body.test .sim{display:block}
-.last{text-align:center;font-size:14px;color:var(--muted);min-height:1.4em}
+.last{text-align:center;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);min-height:1.4em}
 
-.lane.done .of,.lane.done .erg .st,.lane.done .last{color:inherit}
-.lane.done .bar{background:rgba(0,0,0,.12)}
-.lane.done .bar i{background:var(--done-ink)}
-.lane.done .erg{border-color:rgba(0,0,0,.25)}
-.lane.done button{border-color:var(--done-ink);color:var(--done-ink)}
-.lane.done button.next{background:var(--done-ink);color:var(--done)}
+/* Carril terminado: todo el carril en cian */
+.lane.done{background:var(--glow);color:var(--ink);border-color:var(--glow-bright);box-shadow:0 0 60px rgba(127,216,236,.45)}
+.lane.done .clock{color:var(--ink)}
+.lane.done .total .n{text-shadow:none}
+.lane.done .of,.lane.done .erg .st,.lane.done .last,.lane.done .kicker{color:var(--ink)}
+.lane.done .goal{color:var(--ink);border-color:rgba(5,7,10,.35)}
+.lane.done .bar{background:rgba(5,7,10,.18)}
+.lane.done .bar i{background:var(--ink);box-shadow:none}
+.lane.done .erg{border-color:rgba(5,7,10,.25)}
+.lane.done button{border-color:var(--ink);color:var(--ink)}
+.lane.done button.next{background:var(--ink);color:var(--glow)}
 
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <header>
-  <h1 class="bb">Rakun Race · Ski + Bike</h1>
+  <div class="brand">
+    <img src="rakun-lockup-cyan.svg" alt="Rakun Training Club">
+    <span class="sep"></span>
+    <div>
+      <h1 class="bb">Rakun Race</h1>
+      <span class="kicker">Ski + Bike</span>
+    </div>
+  </div>
   <label class="chk"><input type="checkbox" id="test"> Modo prueba</label>
   <button id="fs">Pantalla completa</button>
 </header>
@@ -95,10 +114,11 @@ const ST2  = 'ce060033-43e5-11e4-916c-0800200c9a66'; // Additional Status 2: Tot
 const RATE = 'ce060034-43e5-11e4-916c-0800200c9a66'; // frecuencia de envío
 const MACHINES = ['SkiErg', 'BikeErg'];
 const KEY = 'rakun-carriles-3';
+const AUTO_NEXT_MS = 10000;
 
 const $ = id => document.getElementById(id);
 const lanes = [0,1,2].map(n => ({
-  n, state:'waiting', startedAt:null, finishedAt:null, prev:null,   // state: waiting | running | done
+  n, state:'waiting', startedAt:null, finishedAt:null, prev:null, autoTimer:null,   // state: waiting | running | done
   ergs: [0,1].map(i => ({ i, device:null, raw:null, contrib:0 }))
 }));
 const allErgs = () => lanes.flatMap(l => l.ergs.map(e => ({ l, e })));
@@ -115,7 +135,7 @@ $('lanes').innerHTML = lanes.map(l => `
     <div class="ergs">
       ${l.ergs.map(e => `
         <div class="erg">
-          <h3 class="bb">${MACHINES[e.i]}</h3>
+          <span class="kicker">${MACHINES[e.i]}</span>
           <span class="cal bb" id="c${l.n}${e.i}">0</span>
           <span class="st" id="s${l.n}${e.i}">Sin conectar</span>
           <button id="b${l.n}${e.i}">Conectar</button>
@@ -126,7 +146,7 @@ $('lanes').innerHTML = lanes.map(l => `
     <div class="last" id="last${l.n}"></div>
   </section>`).join('');
 
-// Guardar nombres de carril y meta en esta compu
+// Guardar nombres de carril y metas en esta compu
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
   (saved.names || []).forEach((v, n) => { if (v && $('name'+n)) $('name'+n).value = v; });
@@ -151,25 +171,29 @@ const target = l => Math.max(1, parseInt($('target'+l.n).value, 10) || 200);
 const total = l => l.ergs[0].contrib + l.ergs[1].contrib;
 const fmt = ms => { const s = Math.floor(ms/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
 const testMode = () => document.body.classList.contains('test');
+const secsToNext = l => Math.max(0, Math.ceil((l.finishedAt + AUTO_NEXT_MS - Date.now()) / 1000));
+
+function statusText(l){
+  if (l.state === 'done')    return `¡Listo! Avancen · nueva pareja en ${secsToNext(l)} s`;
+  if (l.state === 'running') return `Faltan ${Math.max(0, target(l) - total(l))} cal`;
+  return (l.ergs.every(e => e.device) || testMode()) ? 'Listos · el tiempo arranca con la primera caloría' : 'Conecta las dos máquinas';
+}
 
 function render(l){
-  const n = l.n, t = total(l), goal = target(l);
+  const n = l.n, t = total(l);
   $('total'+n).textContent = t;
-  $('bar'+n).style.width = Math.min(100, t/goal*100) + '%';
+  $('bar'+n).style.width = Math.min(100, t/target(l)*100) + '%';
   l.ergs.forEach(e => $(`c${n}${e.i}`).textContent = e.contrib);
   $('L'+n).classList.toggle('done', l.state === 'done');
   $('clock'+n).textContent = l.state === 'waiting' ? '0:00' : fmt((l.finishedAt || Date.now()) - l.startedAt);
-  $('status'+n).textContent =
-      l.state === 'done'    ? '¡Listo! Avancen'
-    : l.state === 'running' ? `Faltan ${Math.max(0, goal - t)} cal`
-    : (l.ergs.every(e => e.device) || testMode()) ? 'Listos. El tiempo arranca con la primera caloría'
-    : 'Conecta las dos máquinas';
-  $('last'+n).textContent = l.prev ? `Pareja anterior: ${l.prev}` : '';
+  $('status'+n).textContent = statusText(l);
+  $('last'+n).textContent = l.prev ? `Pareja anterior · ${l.prev}` : '';
 }
 const renderAll = () => lanes.forEach(render);
 
 setInterval(() => lanes.forEach(l => {
   if (l.state === 'running') $('clock'+l.n).textContent = fmt(Date.now() - l.startedAt);
+  if (l.state === 'done') $('status'+l.n).textContent = statusText(l);
 }), 250);
 
 // Recibe el total de calorías que marca el monitor y suma solo lo nuevo
@@ -190,10 +214,13 @@ function addCalories(l, e, delta){
 
 function finish(l){
   l.state = 'done'; l.finishedAt = Date.now();
+  clearTimeout(l.autoTimer);
+  l.autoTimer = setTimeout(() => nextPair(l), AUTO_NEXT_MS);
   beep();
 }
 
 function nextPair(l){
+  clearTimeout(l.autoTimer); l.autoTimer = null;
   if (l.state === 'done') l.prev = fmt(l.finishedAt - l.startedAt);
   l.ergs.forEach(e => e.contrib = 0);   // "raw" se queda: solo cuenta lo que hagan desde ahora
   l.state = 'waiting'; l.startedAt = l.finishedAt = null;
