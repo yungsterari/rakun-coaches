@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rakun Race · Ski + Bike</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff; --ink:#0a1a24; --muted:#5b6b75; --line:#d5dee3;
+  --cyan:#1f9fc4; --cyan-soft:#e3f5fb; --done:#c8ef1a; --done-ink:#0a1a24; --warn:#c0392b;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#05111a; --ink:#eef6f9; --muted:#8aa0ab; --line:#1d3340;
+    --cyan:#7dd6f0; --cyan-soft:#0b2533; --warn:#ff7a6b; color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.4 Barlow,system-ui,sans-serif;
+  display:flex;flex-direction:column;transition:background .25s}
+body.done{background:var(--done);color:var(--done-ink)}
+main{flex:1;display:flex;flex-direction:column;gap:14px;padding:16px;max-width:560px;width:100%;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lane{font:400 28px/1 "Bebas Neue",Impact,sans-serif;letter-spacing:.02em;background:none;border:0;color:inherit;width:9ch;padding:0}
+.target{display:flex;align-items:center;gap:6px;color:var(--muted)}
+body.done .target{color:inherit}
+.target input{width:5ch;font:400 26px/1 "Bebas Neue",Impact,sans-serif;text-align:center;
+  border:1px solid var(--line);border-radius:6px;background:transparent;color:inherit;padding:4px}
+.total{text-align:center;margin:8px 0 0}
+.total .n{font:400 clamp(120px,42vw,220px)/.85 "Bebas Neue",Impact,sans-serif;display:block;font-variant-numeric:tabular-nums}
+.total .of{color:var(--muted);font-weight:600}
+body.done .total .of{color:inherit}
+.bar{height:14px;border-radius:7px;background:var(--cyan-soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--cyan);transition:width .2s}
+body.done .bar{background:rgba(0,0,0,.12)} body.done .bar i{background:var(--done-ink)}
+.status{text-align:center;font-weight:600;min-height:1.4em}
+.ergs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.erg{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+body.done .erg{border-color:rgba(0,0,0,.25)}
+.erg h2{margin:0;font:400 24px/1 "Bebas Neue",Impact,sans-serif}
+.erg .cal{font:400 44px/1 "Bebas Neue",Impact,sans-serif;font-variant-numeric:tabular-nums}
+.erg .st{font-size:13px;color:var(--muted);min-height:2.6em}
+body.done .erg .st{color:inherit}
+.erg .st.bad{color:var(--warn)}
+button{font:600 16px/1 Barlow,system-ui,sans-serif;border-radius:8px;padding:12px 14px;cursor:pointer;
+  border:1px solid var(--cyan);background:transparent;color:var(--cyan)}
+body.done button{border-color:var(--done-ink);color:var(--done-ink)}
+button.main{background:var(--ink);color:var(--bg);border-color:var(--ink);font-size:20px;padding:18px}
+body.done button.main{background:var(--done-ink);color:var(--done)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.sim{display:none;gap:6px}
+body.test .sim{display:flex}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+.foot label{display:flex;gap:6px;align-items:center}
+.nobt{border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:12px;display:none}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <input class="lane" id="lane" value="Carril 1" aria-label="Nombre del carril">
+    <label class="target">Meta <input id="target" type="number" inputmode="numeric" min="1" value="200"> cal</label>
+  </div>
+
+  <div class="nobt" id="nobt">Este navegador no tiene Bluetooth web. Usa Chrome en Android o en computadora. En iPhone o iPad necesitas un navegador con Bluetooth web, como Bluefy.</div>
+
+  <div class="total" aria-live="polite">
+    <span class="n" id="total">0</span>
+    <span class="of" id="of">de 200 cal</span>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="status" id="status">Conecta las dos máquinas</div>
+
+  <div class="ergs">
+    <section class="erg" data-i="0">
+      <h2>SkiErg</h2>
+      <span class="cal" id="c0">0</span>
+      <span class="st" id="s0">Sin conectar</span>
+      <button id="b0">Conectar</button>
+      <div class="sim"><button data-sim="0">+5 cal</button></div>
+    </section>
+    <section class="erg" data-i="1">
+      <h2>BikeErg</h2>
+      <span class="cal" id="c1">0</span>
+      <span class="st" id="s1">Sin conectar</span>
+      <button id="b1">Conectar</button>
+      <div class="sim"><button data-sim="1">+5 cal</button></div>
+    </section>
+  </div>
+
+  <button class="main" id="reset">Siguiente pareja</button>
+
+  <div class="foot">
+    <label><input type="checkbox" id="test"> Modo prueba (sin máquinas)</label>
+    <span id="clock"></span>
+  </div>
+</main>
+
+<script>
+const SVC  = 'ce060030-43e5-11e4-916c-0800200c9a66';
+const ST2  = 'ce060033-43e5-11e4-916c-0800200c9a66'; // Additional Status 2: Total Calories en bytes 6–7
+const RATE = 'ce060034-43e5-11e4-916c-0800200c9a66'; // frecuencia de envío
+
+const $ = id => document.getElementById(id);
+const ergs = [0,1].map(i => ({ i, device:null, last:null, contrib:0 }));
+let state = 'waiting';   // waiting | running | done
+let startedAt = null, finishedAt = null, tick = null;
+
+// Guardar nombre de carril y meta en este dispositivo
+try {
+  const saved = JSON.parse(localStorage.getItem('rakun-carril') || '{}');
+  if (saved.lane) $('lane').value = saved.lane;
+  if (saved.target) $('target').value = saved.target;
+} catch(e) {}
+function save(){ try{ localStorage.setItem('rakun-carril', JSON.stringify({lane:$('lane').value, target:$('target').value})); }catch(e){} }
+$('lane').addEventListener('change', save);
+$('target').addEventListener('input', () => { save(); render(); });
+
+const target = () => Math.max(1, parseInt($('target').value, 10) || 200);
+const total = () => ergs[0].contrib + ergs[1].contrib;
+const fmt = ms => { const s = Math.floor(ms/1000); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
+
+function render(){
+  const t = total(), goal = target();
+  $('total').textContent = t;
+  $('of').textContent = `de ${goal} cal`;
+  $('bar').style.width = Math.min(100, t/goal*100) + '%';
+  $('c0').textContent = ergs[0].contrib;
+  $('c1').textContent = ergs[1].contrib;
+  document.body.classList.toggle('done', state === 'done');
+  if (state === 'done') $('status').textContent = `¡Listo! Avancen · ${fmt(finishedAt - startedAt)}`;
+  else if (state === 'running') $('status').textContent = `Faltan ${goal - t} cal`;
+  else $('status').textContent = (ergs[0].device && ergs[1].device) || document.body.classList.contains('test')
+      ? 'Listos. Empieza a contar con la primera caloría' : 'Conecta las dos máquinas';
+}
+
+// Recibe el total de calorías que marca el monitor y suma solo lo nuevo
+function onCalories(erg, raw){
+  if (erg.last === null) { erg.last = raw; return; }
+  let delta = raw >= erg.last ? raw - erg.last : raw; // si el monitor se reinició, cuenta desde 0
+  erg.last = raw;
+  if (delta <= 0 || state === 'done') return;
+  addCalories(erg, delta);
+}
+
+function addCalories(erg, delta){
+  if (state === 'waiting') { state = 'running'; startedAt = Date.now(); startClock(); }
+  erg.contrib += delta;
+  if (total() >= target()) finish();
+  render();
+}
+
+function finish(){
+  state = 'done'; finishedAt = Date.now(); stopClock();
+  try { navigator.vibrate && navigator.vibrate([300,120,300]); } catch(e){}
+  beep();
+}
+
+function reset(){
+  ergs.forEach(e => e.contrib = 0);   // "last" se queda: solo cuenta lo que hagan desde ahora
+  state = 'waiting'; startedAt = finishedAt = null; stopClock(); $('clock').textContent = '';
+  render();
+}
+$('reset').addEventListener('click', reset);
+
+function startClock(){ stopClock(); tick = setInterval(() => { $('clock').textContent = fmt(Date.now() - startedAt); }, 250); }
+function stopClock(){ if (tick) clearInterval(tick); tick = null; }
+
+let audio;
+function beep(){
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    [0, .25, .5].forEach(off => {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
+      g.gain.setValueAtTime(.4, audio.currentTime + off);
+      g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + off + .2);
+      o.start(audio.currentTime + off); o.stop(audio.currentTime + off + .22);
+    });
+  } catch(e) {}
+}
+
+function setSt(i, text, bad){ const el = $('s'+i); el.textContent = text; el.classList.toggle('bad', !!bad); }
+
+async function connect(erg){
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)(); // desbloquea el sonido
+    const device = await navigator.bluetooth.requestDevice({
+      filters: [{ namePrefix: 'PM5' }], optionalServices: [SVC]
+    });
+    erg.device = device;
+    device.addEventListener('gattserverdisconnected', () => reconnect(erg));
+    await attach(erg);
+  } catch(e) {
+    if (e.name !== 'NotFoundError') setSt(erg.i, 'No se pudo conectar: ' + e.message, true);
+  }
+}
+
+async function attach(erg){
+  setSt(erg.i, 'Conectando…');
+  const server = await erg.device.gatt.connect();
+  const svc = await server.getPrimaryService(SVC);
+  try { await (await svc.getCharacteristic(RATE)).writeValue(new Uint8Array([2])); } catch(e) {} // cada 250 ms
+  const ch = await svc.getCharacteristic(ST2);
+  ch.addEventListener('characteristicvaluechanged', ev => {
+    const dv = ev.target.value;
+    if (dv.byteLength >= 8) onCalories(erg, dv.getUint16(6, true));
+  });
+  await ch.startNotifications();
+  setSt(erg.i, 'Conectado · ' + (erg.device.name || 'PM5'));
+  $('b'+erg.i).textContent = 'Cambiar';
+  render();
+}
+
+async function reconnect(erg){
+  setSt(erg.i, 'Se desconectó. Reconectando…', true);
+  for (let n = 0; n < 5; n++) {
+    try { await attach(erg); return; } catch(e) { await new Promise(r => setTimeout(r, 1500)); }
+  }
+  setSt(erg.i, 'Sin conexión. Toca Cambiar para volver a conectar', true);
+}
+
+ergs.forEach(erg => $('b'+erg.i).addEventListener('click', () => connect(erg)));
+
+// Modo prueba
+$('test').addEventListener('change', e => { document.body.classList.toggle('test', e.target.checked); render(); });
+document.querySelectorAll('[data-sim]').forEach(b => b.addEventListener('click', () => {
+  const erg = ergs[+b.dataset.sim]; if (state !== 'done') addCalories(erg, 5);
+}));
+
+// Mantener la pantalla encendida
+async function keepAwake(){ try { await navigator.wakeLock?.request('screen'); } catch(e) {} }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+keepAwake();
+
+if (!navigator.bluetooth) { $('nobt').style.display = 'block'; $('b0').disabled = $('b1').disabled = true; }
+render();
+</script>
+</body>
+</html>
